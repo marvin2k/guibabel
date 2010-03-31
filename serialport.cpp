@@ -187,9 +187,8 @@ int serialport::read( char* buffer, size_t nr ) {
 
 int serialport::write( char* buffer, size_t nr ) {
 
-	::write(fd, buffer, nr);
+	return ::write(fd, buffer, nr);
 
-	return 0;
 }
 
 int serialport::flush( void ) {

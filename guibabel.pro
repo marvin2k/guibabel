@@ -6,6 +6,7 @@ TEMPLATE = app
 TARGET = 
 DEPENDPATH += .
 INCLUDEPATH += .
+CONFIG += warn_on
 
 # Input
 HEADERS += gui.h serialport.h CurvePlot.h sequenceRecorder.h
@@ -15,3 +16,10 @@ SOURCES += gui.cpp main.cpp serialport.cpp CurvePlot.cpp sequenceRecorder.cpp
 INCLUDEPATH += /usr/include/qwt-qt4 
 DEPENDPATH += /usr/include/qwt-qt4 
 LIBS += -lqwt-qt4 -lsndfile
+
+#extra clean-target to get rid of resulting plotfiles
+#noch nciht so richtig ausgereift
+mytarget.target = logfilecleanclean
+mytarget.commands = rm -f {wavs,data}/*
+mytarget.depends = clean
+QMAKE_EXTRA_TARGETS += mytarget

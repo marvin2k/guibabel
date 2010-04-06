@@ -1,6 +1,6 @@
 #ifndef GUI_H
 #define GUI_H
- 
+
 #include "ui_gui.h"
 
 #include "serialport.h"
@@ -11,7 +11,7 @@
 
 class gui : public QMainWindow, public Ui::MainWindow{
 	Q_OBJECT
- 
+
 	public:
 		gui (QMainWindow *parent = 0);
 		~gui();
@@ -36,6 +36,7 @@ class gui : public QMainWindow, public Ui::MainWindow{
 		void stateChanged_checkbox_basename(int newstate);
 		void refresh_pcmplot();
 		void trigger_sequence_recorder_start();
-		void trigger_send_scale_command();
+		void trigger_new_scale_command(int val);
+		void trigger_button_scale_command();
 };
 #endif //GUI_H

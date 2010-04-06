@@ -124,8 +124,8 @@ int serialport::read_pcm( int* values, int number ) {
 	while (counter < number) {
 		read(&byte,1);
 		//VERBOSE_PRINTF("read raw byte %i at state %i\n",byte,state);
-		
-		//check if first byte, encoded by leading one in MSB
+
+		//check if first byte, encoded by leading "one" (in MSB)
 		if ( (byte & 0x80) && (state == 0)){
 			first_byte = byte;
 			state = 1;
@@ -133,8 +133,8 @@ int serialport::read_pcm( int* values, int number ) {
 		} else if ( !(byte & 0x80) && (state == 1)) {
 			second_byte = byte;
 			// Step back, pure magic...
-			// mask out first two bits of second_byte (marker bit + sign) and shift rest into correct position
-			// together with second byte
+			// mask out first two bits of second_byte (marker bit + sign) and
+			// shift result into correct position, together with second byte
 			result = ((first_byte&0x7f)<<9) | ((second_byte&0x7f)<<2);
 			result = result>>2;
 
@@ -147,7 +147,6 @@ int serialport::read_pcm( int* values, int number ) {
 			state = 0;
 		}
 
-	
 	}
 	return counter;
 }

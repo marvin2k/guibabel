@@ -1,5 +1,5 @@
 #include "gui.h"
- 
+
 #include <sys/ioctl.h>
 #include <linux/serial.h>
 #include <unistd.h>
@@ -19,6 +19,7 @@
 gui::gui(QMainWindow *parent) : QMainWindow(parent){
 	setupUi(this);
 	mVerboseLevel = 1;
+	VERBOSE_PRINTF("starting construction of GUI\n");
 	// setup quit-hook
 	connect(actionQuit,SIGNAL(triggered()), qApp, SLOT(quit()));
 
@@ -50,27 +51,45 @@ gui::gui(QMainWindow *parent) : QMainWindow(parent){
 
 	// prepare serialport
 	mySerialport = new serialport();
-	
+
 	// prepare sequenceRecorder
 	connect(pushButton_start_sequence_recorder, SIGNAL(clicked()), this, SLOT(trigger_sequence_recorder_start()));
-	connect(pushButton_send_scale_command, SIGNAL(clicked()), this, SLOT(trigger_send_scale_command()));
+	connect(horizontalSlider_scalecommand, SIGNAL(sliderMoved(int)), this, SLOT(trigger_new_scale_command(int)));
+	connect(pushButton_send_scale_command, SIGNAL(clicked()), this, SLOT(trigger_button_scale_command()));
+
+	VERBOSE_PRINTF("finished construction of GUI\n");
 }
- 
+
 gui::~gui(){
+	VERBOSE_PRINTF("starting deletion of GUI\n");
+
 	if (isDrawing)
 		delete pcmplot;
 	delete myTimer_pcmplot_refresh;
 	delete mySerialport;
+
+	VERBOSE_PRINTF("finished deletion of GUI\n");
 }
 
-void gui::trigger_send_scale_command() {
+void gui::trigger_button_scale_command(){
+	VERBOSE_PRINTF("button for scalecommand was pressed\n");
+	int val = lineEdit_scalecommand->text().toInt();
+	horizontalSlider_scalecommand->setSliderPosition(val);
+	trigger_new_scale_command(val);
+}
 
-		int8_t cmd = (int8_t)spinBox_scale_command->value();
-		VERBOSE_PRINTF("writing new scale command \"%i\"\n",cmd);
-		mySerialport->write((char*)&cmd, 1);
+void gui::trigger_new_scale_command(int val){
+	VERBOSE_PRINTF("slider for scalecommand was moved, new value will be written\n");
+	lineEdit_scalecommand->setText(QString::number(val));
+
+	int8_t cmd = (int8_t)val;
+	VERBOSE_PRINTF("writing new scale command \"%i\"\n",cmd);
+	mySerialport->write((char*)&cmd, 1);
 }
 
 void gui::trigger_sequence_recorder_start() {
+	VERBOSE_PRINTF("starting sequence recorder\n");
+
 	struct timeval t_start, t_seq, t_seq2;
 	float t_now = 0;
 	int t_end = spinBox_sequence_recorder_runtime->value();
@@ -78,7 +97,7 @@ void gui::trigger_sequence_recorder_start() {
 
 
 	if (lineEdit_datafile_basename->text() == "") {
-		printf("please provide a logfilebasename\n");
+		printf("please provide a logfilebasename, can't record\n");
 		return;
 	}
 
@@ -88,15 +107,17 @@ void gui::trigger_sequence_recorder_start() {
 	} else {
 		record1 = new sequenceRecorder();
 	}
+	VERBOSE_PRINTF("Basename for recording is %s\n",record1->getBasename().c_str());
+
 	record1->setVerbosity(mVerboseLevel);
 
 	if (!record1->open()){
-		printf("fehler beim öffner\n");
+		printf("Error opening recorder, can't record\n");
 		delete record1;
 		return;
 	}
 
-	VERBOSE_PRINTF("recording started, length of %ims and basename of %s\n",t_end,record1->getBasename().c_str());
+	VERBOSE_PRINTF("Recording started, length is %ims, Basename %s\n",t_end,record1->getBasename().c_str());
 
 	isRecording = true;
 
@@ -118,7 +139,7 @@ void gui::trigger_sequence_recorder_start() {
 }
 
 void gui::stateChanged_checkbox_basename( int newstate ) {
-
+	VERBOSE_PRINTF("checkbox for disabling/enabling basename was pressed\n");
 	if ( newstate == Qt::Checked) {
 		lineEdit_datafile_basename->setText("babel_%Y-%m-%d_%H-%M-%S");
 		lineEdit_datafile_basename->setDisabled(true);
@@ -176,7 +197,11 @@ void gui::refresh_pcmplot(){
 	int value;
 	int time_ms;
 	mySerialport->flush();
-	mySerialport->read_pcm(&value, 1);
+	if (mySerialport->read_pcm(&value, 1) == 0) {
+		printf("can't read data\n");
+		myTimer_pcmplot_refresh->stop();
+	}
+
 	gettimeofday(&t_sequence, NULL);
 
 	time_ms = (t_sequence.tv_sec - t_begin.tv_sec)*1000 + (t_sequence.tv_usec - t_begin.tv_usec)/1000;
@@ -187,6 +212,7 @@ void gui::refresh_pcmplot(){
 void gui::refresh_serialports(){
 	// try to open every ttyUSB-device we can find and check if it's a serial device
 	// if we ware successfull, add resulting portname to the list of a corresponding dropbox
+	VERBOSE_PRINTF("refreshing list ov available serialports\n");
 	int i, fd;
 	char* portname = new char[80];
 	struct serial_struct serinfo;

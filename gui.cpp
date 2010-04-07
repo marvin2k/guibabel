@@ -40,14 +40,14 @@ gui::gui(QMainWindow *parent) : QMainWindow(parent){
 	lineEdit_datafile_basename->setText("babel_%Y-%m-%d_%H-%M-%S");
 
 	// prepare plotting-section
-	qwtPlot_pcm->setAxisScale( QwtPlot::yLeft, -8192, 8191, 0);
+	trigger_update_bitwidth(14);// set bitwidth, there will
+	qwtPlot_pcm->setCanvasBackground(Qt::white);
 //	we won't add the curve here, this is done when we click the connect-button
-//	pcmplot = new CurvePlot(this,qwtPlot_pcm, 2000);
-//	pcmplot->addCurve("PCM S14", QwtPlot::yLeft, Qt::red);
 	isDrawing = false;
 	myTimer_pcmplot_refresh = new QTimer(this);
 	connect(myTimer_pcmplot_refresh, SIGNAL(timeout()), this, SLOT(refresh_pcmplot()));
 	myTimer_pcmplot_refresh->setInterval(1);
+	connect(spinBox_bitwidth, SIGNAL(valueChanged(int)), this, SLOT(trigger_update_bitwidth(int)));
 
 	// prepare serialport
 	mySerialport = new serialport();
@@ -85,6 +85,11 @@ void gui::trigger_new_scale_command(int val){
 	int8_t cmd = (int8_t)val;
 	VERBOSE_PRINTF("writing new scale command \"%i\"\n",cmd);
 	mySerialport->write((char*)&cmd, 1);
+}
+
+void gui::trigger_update_bitwidth(int bw) {
+
+	qwtPlot_pcm->setAxisScale( QwtPlot::yLeft, -pow(2,bw-1), pow(2,bw-1)-1, 0);
 }
 
 void gui::trigger_sequence_recorder_start() {
@@ -167,11 +172,12 @@ void gui::trigger_serialport(){
 
 			pcmplot = new CurvePlot(this,qwtPlot_pcm, 2000);
 			isDrawing = true;
-			pcmplot->addCurve("PCM S14", QwtPlot::yLeft, Qt::red);
+			pcmplot->addCurve("PCM S14", QwtPlot::yLeft, Qt::blue);
 			gettimeofday(&t_begin, NULL);
 
 			pushButton_start_sequence_recorder->setEnabled(true);
 			pushButton_send_scale_command->setEnabled(true);
+			spinBox_bitwidth->setEnabled(true);
 		}
 
 	} else {
@@ -190,6 +196,7 @@ void gui::trigger_serialport(){
 
 		pushButton_start_sequence_recorder->setDisabled(true);
 		pushButton_send_scale_command->setDisabled(true);
+		spinBox_bitwidth->setDisabled(true);
 	}
 }
 

@@ -38,5 +38,7 @@ class gui : public QMainWindow, public Ui::MainWindow{
 		void trigger_sequence_recorder_start();
 		void trigger_new_scale_command(int val);
 		void trigger_button_scale_command();
+		void trigger_update_bitwidth(int bw);
+
 };
 #endif //GUI_H

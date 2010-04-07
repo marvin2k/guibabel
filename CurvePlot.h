@@ -41,7 +41,7 @@ public:
 
 	void setTimePeriod(int period);
 
-	void addPointToCurve(QString name, int time, double value);
+	double addPointToCurve(QString name, int time, double value);
 
 private:
 	QwtPlot *plot;

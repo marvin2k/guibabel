@@ -93,9 +93,10 @@ void CurvePlot::setTimePeriod(int period) {
 	}
 }
 
-void CurvePlot::addPointToCurve(QString name, int time, double value) {
+double CurvePlot::addPointToCurve(QString name, int time, double value) {
 
 	struct curve *curve = map[name];
+	double mean = 0;
 
 	if (curve != NULL) {
 		if (time-minX > timePeriod) {
@@ -113,6 +114,7 @@ void CurvePlot::addPointToCurve(QString name, int time, double value) {
 				for(int i = start; i < timePeriod; i++) {
 					curve->x[i] = lastX++;
 					curve->y[i] = lastY + ((value-lastY)*((double)(i-start)/(double)(timePeriod-start)));//lastY;
+//mean += curve->y[i];
 				}
 				curve->y[timePeriod-1] = value;
 				curve->x[timePeriod-1] = time;
@@ -133,8 +135,13 @@ void CurvePlot::addPointToCurve(QString name, int time, double value) {
 			}
 		}
 		plot->setAxisScale(QwtPlot::xBottom, minX, maxX, timePeriod/5);
+		for (int i = 0;i<timePeriod;i++){
+mean += curve->y[i];
+		}
 	}
 	else {
 		printf("\n Curve Unknown! \n");
+		return 0;
 	}
+	return mean/timePeriod;
 }

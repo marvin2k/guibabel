@@ -92,7 +92,7 @@
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_9">
        <item>
-        <widget class="QLabel" name="label_4">
+        <widget class="QLabel" name="label_pcmplot">
          <property name="text">
           <string>actual dataplot</string>
          </property>

@@ -213,7 +213,12 @@ void gui::refresh_pcmplot(){
 
 	time_ms = (t_sequence.tv_sec - t_begin.tv_sec)*1000 + (t_sequence.tv_usec - t_begin.tv_usec)/1000;
 
-	pcmplot->addPointToCurve("PCM S14", time_ms, value);
+	double mean = pcmplot->addPointToCurve("PCM S14", time_ms, value);
+
+	char myString[80];
+	sprintf(myString,"actual dataplot, mean: %-4.2f",mean);
+	QString myTitle(myString);
+	label_pcmplot->setText(myTitle);
 }
 
 void gui::refresh_serialports(){

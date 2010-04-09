@@ -52,6 +52,9 @@ bool serialport::init(std::string devicename, int baudrate, int verbose_flag) {
 		case 230400:
 			new_baudrate = B230400;
 			break;
+		case 460800:
+			new_baudrate = B460800;
+			break;
 		default:
 			VERBOSE_PRINTF("Unsopported Baudrate, falling back to 230400 Baud\n");
 			new_baudrate = B230400;

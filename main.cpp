@@ -19,7 +19,7 @@ int main( int argc, char* argv[])
 	QString devicename("/dev/ttyUSB0");
 	QString basename;
 	int newScale = -1;
-	int t_recordlen = 0;
+	int t_recordlen = 50;
 	int baudrate = 230400;
 	bool start_gui  = true;
 //-------------------
@@ -102,7 +102,7 @@ int main( int argc, char* argv[])
 // hello world
 //-------------------
 	printf("\n\tWelcome to guibabel\n\n");
-	VERBOSE_PRINTF("compiled on %s, at %s, running with threadID %i\n",__DATE__,__TIME__,QThread::currentThreadId());
+	VERBOSE_PRINTF("compiled on %s, at %s, running with threadID %i\n",__DATE__,__TIME__,(int)QThread::currentThreadId());
 
 	if (start_gui) {
 		gui w;
@@ -112,11 +112,32 @@ int main( int argc, char* argv[])
 			w.setBasename(basename);
 		if (newScale != -1)
 			w.setScaleCommand(newScale);
-		if (t_recordlen > 0)
-			w.setRecordingtime(t_recordlen);
+		w.setRecordingtime(t_recordlen);
 		w.show();
 		return a.exec();
 	} else {
+		PCMdekoder* myDekoder;
+		myDekoder = new PCMdekoder();
+		myDekoder->Set_baudrate(baudrate);
+		myDekoder->Set_portname(devicename);
+		myDekoder->Set_verbosity(verbose_flag);
+		myDekoder->init();
+		myDekoder->start();//now, serial port is beein read
 
+		myDekoder->drain = new sequenceRecorder();
+		myDekoder->drain->setVerbosity(verbose_flag);
+
+		if (!myDekoder->drain->open()){
+			printf("Error opening recorder, can't record\n");
+			delete myDekoder->drain;
+			return EXIT_FAILURE;
+		}
+		myDekoder->start_recording(t_recordlen);
+		while (myDekoder->is_recording) {
+			usleep(100);
+		}
+		myDekoder->uninit();
+		delete myDekoder;
+		return EXIT_SUCCESS;
 	}
 }

@@ -105,8 +105,7 @@ int sequenceRecorder::open( ){
 int sequenceRecorder::pushPCMword( int16_t word, struct timeval t_seq ) {
 	// do actual writing
 	if (!isOpen) {
-		printf("fehler\n");
-exit(0);
+		printf("fehler beim schreiben in sequencerekorder: keine datei\n");
 		return EXIT_FAILURE;
 	}
 

@@ -41,6 +41,8 @@
 		</Linker>
 		<Unit filename="CurvePlot.cpp" />
 		<Unit filename="CurvePlot.h" />
+		<Unit filename="PCMdekoder.cpp" />
+		<Unit filename="PCMdekoder.h" />
 		<Unit filename="gui.cpp" />
 		<Unit filename="gui.h" />
 		<Unit filename="gui.ui" />

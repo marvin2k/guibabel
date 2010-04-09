@@ -66,8 +66,10 @@ gui::~gui(){
 
 	delete myTimer_pcmplot_refresh;
 
-	if (myDekoder->isRunning()) {
-		myDekoder->Set_recordingTime(0);
+	while (myDekoder->isRunning()) {
+		VERBOSE_PRINTF("waiting for data-thread to exit\n");
+		myDekoder->stop_running = true;
+		usleep(1);
 	}
 	delete myDekoder;
 
@@ -131,7 +133,7 @@ void gui::trigger_new_scale_command(int val){
 
 	int8_t cmd = (int8_t)val;
 	VERBOSE_PRINTF("writing new scale command \"%i\"\n",cmd);
-	myDekoder->send_command((char*)&cmd, 1);
+	myDekoder->source->write((char*)&cmd, 1);
 }
 
 void gui::trigger_update_bitwidth(int bw) {
@@ -142,10 +144,7 @@ void gui::trigger_update_bitwidth(int bw) {
 void gui::trigger_sequence_recorder_start() {
 	VERBOSE_PRINTF("starting sequence recorder\n");
 
-	struct timeval t_start, t_seq, t_seq2;
-	float t_now = 0;
 	int t_end = spinBox_sequence_recorder_runtime->value();
-	int val;
 
 
 	if (lineEdit_datafile_basename->text() == "") {
@@ -155,39 +154,25 @@ void gui::trigger_sequence_recorder_start() {
 
 	if (lineEdit_datafile_basename->isEnabled()) {
 		std::string basename = lineEdit_datafile_basename->text().toAscii().data();
-		record1 = new sequenceRecorder(basename);
+		myDekoder->drain = new sequenceRecorder(basename);
 	} else {
-		record1 = new sequenceRecorder();
+		myDekoder->drain = new sequenceRecorder();
 	}
-	VERBOSE_PRINTF("Basename for recording is %s\n",record1->getBasename().c_str());
+	VERBOSE_PRINTF("Basename for recording is %s\n",myDekoder->drain->getBasename().c_str());
 
-	record1->setVerbosity(mVerboseLevel);
+	myDekoder->drain->setVerbosity(mVerboseLevel);
 
-	if (!record1->open()){
+	if (!myDekoder->drain->open()){
 		printf("Error opening recorder, can't record\n");
-		delete record1;
+		delete myDekoder->drain;
 		return;
 	}
 
-	VERBOSE_PRINTF("Recording started, length is %ims, Basename %s\n",t_end,record1->getBasename().c_str());
+	VERBOSE_PRINTF("Recording started, length is %ims, Basename %s\n",t_end,myDekoder->drain->getBasename().c_str());
 
-	isRecording = true;
+	myDekoder->m_recordingTime = spinBox_sequence_recorder_runtime->value();
+	myDekoder->is_recording = true;
 
-	gettimeofday(&t_start, NULL);
-	while ( t_now < t_end ) {
-		//mySerialport->read_pcm(&val,1);
-		gettimeofday(&t_seq,NULL);
-		t_seq2.tv_sec = t_seq.tv_sec - t_start.tv_sec;
-		t_seq2.tv_usec = t_seq.tv_usec - t_start.tv_usec;
-		t_now = t_seq2.tv_sec*1000 + t_seq2.tv_usec/1000.0;
-		record1->pushPCMword(val,t_seq2);
-
-	}
-	VERBOSE_PRINTF("After %f microseconds, guibabel finished recording\n",t_now);
-
-	record1->close();
-	delete record1;
-	isRecording = false;
 }
 
 void gui::stateChanged_checkbox_basename( int newstate ) {

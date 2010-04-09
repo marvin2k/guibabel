@@ -16,6 +16,11 @@ class gui : public QMainWindow, public Ui::MainWindow{
 		gui (QMainWindow *parent = 0);
 		~gui();
 
+		void setBaudrate(int newBaudrate);
+		void setBasename(QString newBasename);
+		void setScaleCommand(int newScale);
+		void setRecordingtime(int rectime);
+		void setVerbosity(int newVerbosity);
 
 	private:
 		serialport* mySerialport;
@@ -29,6 +34,12 @@ class gui : public QMainWindow, public Ui::MainWindow{
 		struct timeval t_sequence;
 
 		int mVerboseLevel;
+
+		QString mDefaultBasename;
+		QString mCurrentBasename;
+		int mBaudrate;
+		int mScaleCommand;
+		int mRecordingtime;
 
 	private slots:
 		void refresh_serialports();

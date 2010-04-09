@@ -35,9 +35,9 @@ gui::gui(QMainWindow *parent) : QMainWindow(parent){
 	setWindowTitle(myTitle);
 
 	// prepare basename input
-	checkBox_basename->setCheckState( Qt::Checked );
+	mDefaultBasename = "babel_%Y-%m-%d_%H-%M-%S";
 	connect(checkBox_basename, SIGNAL(stateChanged(int)), this, SLOT(stateChanged_checkbox_basename(int)));
-	lineEdit_datafile_basename->setText("babel_%Y-%m-%d_%H-%M-%S");
+	setBasename(mDefaultBasename);
 
 	// prepare plotting-section
 	trigger_update_bitwidth(14);// set bitwidth, there will
@@ -69,6 +69,50 @@ gui::~gui(){
 	delete mySerialport;
 
 	VERBOSE_PRINTF("finished deletion of GUI\n");
+}
+
+// handling of enabling/disablin the propriate boxes, according to the basename
+void gui::setBasename(QString newBasename){
+	if (newBasename == mDefaultBasename){
+		lineEdit_datafile_basename->setDisabled(true);
+		checkBox_basename->setCheckState(Qt::Checked);
+	} else {
+		lineEdit_datafile_basename->setEnabled(true);
+		checkBox_basename->setCheckState(Qt::Unchecked);
+	}
+	lineEdit_datafile_basename->setText(newBasename);
+}
+
+// setting of baudrate in gui
+void gui::setBaudrate(int newBaudrate) {
+	mBaudrate = newBaudrate;
+}
+
+// set all gui element to a new scale command
+void gui::setScaleCommand(int newScale){
+	if (newScale < horizontalSlider_scalecommand->minimum()) {
+		VERBOSE_PRINTF("new scale command not supported, too low\n");
+		return;
+	}
+	if (newScale > horizontalSlider_scalecommand->maximum()) {
+		VERBOSE_PRINTF("new scale command not supported, too high\n");
+		return;
+	}
+	lineEdit_scalecommand->setText(QString::number(newScale));
+	horizontalSlider_scalecommand->setSliderPosition(newScale);
+}
+
+void gui::setVerbosity(int newVerbosity){
+	mVerboseLevel = newVerbosity;
+}
+
+void gui::setRecordingtime(int rectime){
+	if (rectime <= 0) {
+		VERBOSE_PRINTF("negative or zero rec-time doesn't make sense\n");
+		return;
+	} else {
+		spinBox_sequence_recorder_runtime->setValue(rectime);
+	}
 }
 
 void gui::trigger_button_scale_command(){
@@ -146,7 +190,7 @@ void gui::trigger_sequence_recorder_start() {
 void gui::stateChanged_checkbox_basename( int newstate ) {
 	VERBOSE_PRINTF("checkbox for disabling/enabling basename was pressed\n");
 	if ( newstate == Qt::Checked) {
-		lineEdit_datafile_basename->setText("babel_%Y-%m-%d_%H-%M-%S");
+		lineEdit_datafile_basename->setText(mDefaultBasename);
 		lineEdit_datafile_basename->setDisabled(true);
 
 	} else {
@@ -161,7 +205,7 @@ void gui::trigger_serialport(){
 	if (button_connect_disconnect_serialport->text() == "connect serialport") {
 
 		std::string portname = comboBox_avail_serialports->currentText().toAscii().data();
-		if (mySerialport->init(portname, 230400, mVerboseLevel)) {
+		if (mySerialport->init(portname, mBaudrate, mVerboseLevel)) {
 			// success!
 			button_connect_disconnect_serialport->setText("disconnect serialport");
 			action_connect_disconnect_serialport->setText("disconnect serialport");

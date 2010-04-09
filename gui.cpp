@@ -46,7 +46,7 @@ gui::gui(QMainWindow *parent) : QMainWindow(parent){
 	isDrawing = false;
 	myTimer_pcmplot_refresh = new QTimer(this);
 	connect(myTimer_pcmplot_refresh, SIGNAL(timeout()), this, SLOT(refresh_pcmplot()));
-	myTimer_pcmplot_refresh->setInterval(1);
+	myTimer_pcmplot_refresh->setInterval(5);
 	connect(spinBox_bitwidth, SIGNAL(valueChanged(int)), this, SLOT(trigger_update_bitwidth(int)));
 
 
@@ -61,17 +61,18 @@ gui::gui(QMainWindow *parent) : QMainWindow(parent){
 gui::~gui(){
 	VERBOSE_PRINTF("starting deletion of GUI\n");
 
-	if (isDrawing)
+	if (isDrawing) {
 		delete pcmplot;
 
-	delete myTimer_pcmplot_refresh;
-
-	while (myDekoder->isRunning()) {
-		VERBOSE_PRINTF("waiting for data-thread to exit\n");
-		myDekoder->stop_running = true;
-		usleep(1);
+		if (myDekoder->isRunning()) {
+			VERBOSE_PRINTF("Serial thread still running, try to kill him\n");
+			myDekoder->uninit();
+			delete myDekoder;
+		}
 	}
-	delete myDekoder;
+
+
+	delete myTimer_pcmplot_refresh;
 
 	VERBOSE_PRINTF("finished deletion of GUI\n");
 }
@@ -133,7 +134,7 @@ void gui::trigger_new_scale_command(int val){
 
 	int8_t cmd = (int8_t)val;
 	VERBOSE_PRINTF("writing new scale command \"%i\"\n",cmd);
-	myDekoder->source->write((char*)&cmd, 1);
+	myDekoder->send_command((char*)&cmd, 1);
 }
 
 void gui::trigger_update_bitwidth(int bw) {
@@ -168,10 +169,9 @@ void gui::trigger_sequence_recorder_start() {
 		return;
 	}
 
-	VERBOSE_PRINTF("Recording started, length is %ims, Basename %s\n",t_end,myDekoder->drain->getBasename().c_str());
+	VERBOSE_PRINTF("Recording prepared, length is %ims, Basename %s\n",t_end,myDekoder->drain->getBasename().c_str());
 
-	myDekoder->m_recordingTime = spinBox_sequence_recorder_runtime->value();
-	myDekoder->is_recording = true;
+	myDekoder->start_recording(spinBox_sequence_recorder_runtime->value());
 
 }
 

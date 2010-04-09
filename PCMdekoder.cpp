@@ -8,6 +8,8 @@
                                 printf(__VA_ARGS__);\
                             }
 
+#define PCM_RATE 9043
+
 PCMdekoder::PCMdekoder() {
 	//ctor
 	Set_portname("/dev/ttyUSB0");
@@ -45,6 +47,14 @@ void PCMdekoder::uninit(){
 	delete source;
 }
 
+void PCMdekoder::start_recording(int rec_time){
+// sequence recorder is prepared in gui.cpp
+	m_sample_down_counter = (int)((PCM_RATE*rec_time)/1000);
+	is_recording = true;
+	VERBOSE_PRINTF("startet recording of %i samples\n",m_sample_down_counter);
+
+}
+
 void PCMdekoder::run(){
 	VERBOSE_PRINTF("Dekoder-Thread called on %s with thread ID %i\n",m_portname.toAscii().data(),currentThreadId());
 	//exec();
@@ -54,23 +64,23 @@ void PCMdekoder::run(){
 
 	while ( !stop_running ) {
 		source->read_pcm(&m_lastValue,1);
-		if (is_recording)  {
-			gettimeofday(&t_seq,NULL);
-			t_seq2.tv_sec = t_seq.tv_sec - t_start.tv_sec;
-			t_seq2.tv_usec = t_seq.tv_usec - t_start.tv_usec;
-			t_now = t_seq2.tv_sec*1000 + t_seq2.tv_usec/1000.0;
-			drain->pushPCMword(m_lastValue, t_seq2);
-			printf("recorded %f ms of %i ms\n",t_now, m_recordingTime);
-			if (t_now > m_recordingTime) {
-				VERBOSE_PRINTF("After %f microseconds, guibabel finished recording\n",t_now);
+		if (is_recording){
+			if (m_sample_down_counter > 0)  {
+				m_sample_down_counter--;
+				drain->pushPCMword(m_lastValue, t_seq2);
+			} else {
+				VERBOSE_PRINTF("guibabel finished recording\n",t_now);
 
 				drain->close();
 				delete drain;
 				is_recording = false;
 			}
+		} else {
+			// wait a little bit to unstress cpu
+			usleep(10);
 		}
 	}
-	printf("finished running\n");
+	VERBOSE_PRINTF("serial worker thread finished running\n");
 }
 
 void PCMdekoder::send_command(char * data, int len){

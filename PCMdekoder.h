@@ -17,6 +17,8 @@ class PCMdekoder : public QThread
 		bool init();
 		void uninit();
 
+		void start_recording(int rec_time);
+
 		void send_command( char* data, int len );
 
 		int Get_recordingTime() { return m_recordingTime; }
@@ -34,19 +36,21 @@ class PCMdekoder : public QThread
 		bool stop_running;
 		bool is_recording;
 
-		int m_recordingTime;
-		int m_lastValue;
-		QString m_portname;
-		int m_verboselevel;
-		int m_baudrate;
-
-		serialport* source;
 		sequenceRecorder* drain;
 
 	protected:
 
 	private:
 
+		int m_recordingTime;
+		int m_lastValue;
+		QString m_portname;
+		int m_verboselevel;
+		int m_baudrate;
+
+		int m_sample_down_counter;
+
+		serialport* source;
 
 };
 

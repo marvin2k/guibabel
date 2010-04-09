@@ -9,9 +9,9 @@ INCLUDEPATH += .
 CONFIG += warn_on
 
 # Input
-HEADERS += gui.h serialport.h CurvePlot.h sequenceRecorder.h
+HEADERS += gui.h serialport.h CurvePlot.h sequenceRecorder.h PCMdekoder.h
 FORMS += gui.ui
-SOURCES += gui.cpp main.cpp serialport.cpp CurvePlot.cpp sequenceRecorder.cpp
+SOURCES += gui.cpp main.cpp serialport.cpp CurvePlot.cpp sequenceRecorder.cpp PCMdekoder.cpp
 
 INCLUDEPATH += /usr/include/qwt-qt4 
 DEPENDPATH += /usr/include/qwt-qt4 

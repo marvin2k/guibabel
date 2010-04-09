@@ -4,6 +4,8 @@
 #include <linux/serial.h>
 #include <fcntl.h>
 
+#include <QDebug>
+
 #define VERBOSE_PRINTF(...) if (verbose_flag > 0) { \
                                 printf("%s:%i: ",__FILE__,__LINE__);\
                                 printf(__VA_ARGS__);\
@@ -99,9 +101,8 @@ int main( int argc, char* argv[])
 //-------------------
 // hello world
 //-------------------
-	printf("\n\tWelcome to babel\n\n");
-	VERBOSE_PRINTF("compiled on %s, at %s\n",__DATE__,__TIME__);
-
+	printf("\n\tWelcome to guibabel\n\n");
+	VERBOSE_PRINTF("compiled on %s, at %s, running with threadID %i\n",__DATE__,__TIME__,QThread::currentThreadId());
 
 	if (start_gui) {
 		gui w;

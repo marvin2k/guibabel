@@ -5,6 +5,7 @@
 
 #include "serialport.h"
 #include "CurvePlot.h"
+#include "PCMdekoder.h"
 #include <QTimer>
 #include <sys/time.h>
 #include "sequenceRecorder.h"
@@ -23,8 +24,8 @@ class gui : public QMainWindow, public Ui::MainWindow{
 		void setVerbosity(int newVerbosity);
 
 	private:
-		serialport* mySerialport;
 		CurvePlot* pcmplot;
+		PCMdekoder* myDekoder;
 		bool isDrawing;
 		bool isRecording;
 		QTimer* myTimer_pcmplot_refresh;

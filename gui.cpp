@@ -49,8 +49,6 @@ gui::gui(QMainWindow *parent) : QMainWindow(parent){
 	myTimer_pcmplot_refresh->setInterval(1);
 	connect(spinBox_bitwidth, SIGNAL(valueChanged(int)), this, SLOT(trigger_update_bitwidth(int)));
 
-	// prepare serialport
-	mySerialport = new serialport();
 
 	// prepare sequenceRecorder
 	connect(pushButton_start_sequence_recorder, SIGNAL(clicked()), this, SLOT(trigger_sequence_recorder_start()));
@@ -65,8 +63,13 @@ gui::~gui(){
 
 	if (isDrawing)
 		delete pcmplot;
+
 	delete myTimer_pcmplot_refresh;
-	delete mySerialport;
+
+	if (myDekoder->isRunning()) {
+		myDekoder->Set_recordingTime(0);
+	}
+	delete myDekoder;
 
 	VERBOSE_PRINTF("finished deletion of GUI\n");
 }
@@ -128,7 +131,7 @@ void gui::trigger_new_scale_command(int val){
 
 	int8_t cmd = (int8_t)val;
 	VERBOSE_PRINTF("writing new scale command \"%i\"\n",cmd);
-	mySerialport->write((char*)&cmd, 1);
+	myDekoder->send_command((char*)&cmd, 1);
 }
 
 void gui::trigger_update_bitwidth(int bw) {
@@ -172,7 +175,7 @@ void gui::trigger_sequence_recorder_start() {
 
 	gettimeofday(&t_start, NULL);
 	while ( t_now < t_end ) {
-		mySerialport->read_pcm(&val,1);
+		//mySerialport->read_pcm(&val,1);
 		gettimeofday(&t_seq,NULL);
 		t_seq2.tv_sec = t_seq.tv_sec - t_start.tv_sec;
 		t_seq2.tv_usec = t_seq.tv_usec - t_start.tv_usec;
@@ -203,10 +206,18 @@ void gui::stateChanged_checkbox_basename( int newstate ) {
 void gui::trigger_serialport(){
 
 	if (button_connect_disconnect_serialport->text() == "connect serialport") {
+		VERBOSE_PRINTF("connecting serialport, starting workerthread and displaying grph\n");
 
-		std::string portname = comboBox_avail_serialports->currentText().toAscii().data();
-		if (mySerialport->init(portname, mBaudrate, mVerboseLevel)) {
-			// success!
+		myDekoder = new PCMdekoder();
+
+		myDekoder->Set_portname(comboBox_avail_serialports->currentText());
+		myDekoder->Set_verbosity(mVerboseLevel);
+		myDekoder->Set_baudrate(mBaudrate);
+		myDekoder->Set_recordingTime(-1);//run indefinetly
+		if (myDekoder->init()){
+			// success! aaaaand GO!
+			myDekoder->start();
+
 			button_connect_disconnect_serialport->setText("disconnect serialport");
 			action_connect_disconnect_serialport->setText("disconnect serialport");
 			comboBox_avail_serialports->setDisabled(true);
@@ -226,7 +237,9 @@ void gui::trigger_serialport(){
 
 	} else {
 
-		mySerialport->uninit();
+		myDekoder->uninit();
+		delete myDekoder;
+
 		button_connect_disconnect_serialport->setText("connect serialport");
 		action_connect_disconnect_serialport->setText("connect serialport");
 		comboBox_avail_serialports->setEnabled(true);
@@ -247,11 +260,8 @@ void gui::trigger_serialport(){
 void gui::refresh_pcmplot(){
 	int value;
 	int time_ms;
-	mySerialport->flush();
-	if (mySerialport->read_pcm(&value, 1) == 0) {
-		printf("can't read data\n");
-		myTimer_pcmplot_refresh->stop();
-	}
+
+	value = myDekoder->Get_lastValue();
 
 	gettimeofday(&t_sequence, NULL);
 

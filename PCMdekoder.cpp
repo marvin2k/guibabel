@@ -56,10 +56,10 @@ void PCMdekoder::start_recording(int rec_time){
 }
 
 void PCMdekoder::run(){
-	VERBOSE_PRINTF("Dekoder-Thread called on %s with thread ID %i\n",m_portname.toAscii().data(),currentThreadId());
-	//exec();
-	struct timeval t_start, t_seq, t_seq2;
-	float t_now;
+	VERBOSE_PRINTF("Dekoder-Thread called on %s with thread ID %i\n",m_portname.toAscii().data(),(int)currentThreadId());
+	//exec();//normal in qthreads to enter qt-command queue
+
+	struct timeval t_start;
 	gettimeofday(&t_start, NULL);
 
 	while ( !stop_running ) {
@@ -67,9 +67,9 @@ void PCMdekoder::run(){
 		if (is_recording){
 			if (m_sample_down_counter > 0)  {
 				m_sample_down_counter--;
-				drain->pushPCMword(m_lastValue, t_seq2);
+				drain->pushPCMword(m_lastValue, t_start);
 			} else {
-				VERBOSE_PRINTF("guibabel finished recording\n",t_now);
+				VERBOSE_PRINTF("guibabel finished recording\n");
 
 				drain->close();
 				delete drain;
@@ -77,7 +77,7 @@ void PCMdekoder::run(){
 			}
 		} else {
 			// wait a little bit to unstress cpu
-			usleep(10);
+			usleep(5);
 		}
 	}
 	VERBOSE_PRINTF("serial worker thread finished running\n");

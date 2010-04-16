@@ -1,3 +1,6 @@
+ui_gui.h
+moc_*
+*.o
 Makefile
 data/
 wavs/

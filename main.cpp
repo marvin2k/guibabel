@@ -10,7 +10,7 @@
                                 printf("%s:%i: ",__FILE__,__LINE__);\
                                 printf(__VA_ARGS__);\
                             }
-int verbose_flag = 0;
+int verbose_flag = 1;
 
 int main( int argc, char* argv[])
 {

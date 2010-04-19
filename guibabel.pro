@@ -6,7 +6,7 @@ TEMPLATE = app
 TARGET = 
 DEPENDPATH += .
 INCLUDEPATH += .
-CONFIG += warn_on
+CONFIG += warn_on debug 
 
 # Input
 HEADERS += gui.h serialport.h CurvePlot.h sequenceRecorder.h PCMdekoder.h

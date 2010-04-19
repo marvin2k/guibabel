@@ -41,7 +41,7 @@ void PCMdekoder::uninit(){
 	while (this->isRunning()){
 		VERBOSE_PRINTF("Stopping serial thread, waiting for him to exit...\n");
 		stop_running = true;
-		usleep(100);
+		usleep(1000);
 	}
 	source->uninit();
 	delete source;

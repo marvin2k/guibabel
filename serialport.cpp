@@ -125,7 +125,11 @@ int serialport::read_pcm( int* values, int number ) {
 	//VERBOSE_PRINTF("beginning read_pcm loop, state=%i, firstbyte=%i, secondbyte=%i\n",state,first_byte,second_byte);
 
 	while (counter < number) {
-		read(&byte,1);
+		int ret = read(&byte,1);
+		if ( ret < 0) {
+			VERBOSE_PRINTF("timeout?\n");
+			return ret;
+		}
 		//VERBOSE_PRINTF("read raw byte %i at state %i\n",byte,state);
 
 		//check if first byte, encoded by leading "one" (in MSB)

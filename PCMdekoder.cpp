@@ -12,6 +12,8 @@
 
 PCMdekoder::PCMdekoder() {
 	//ctor
+	m_sample_down_counter = 50;
+
 	Set_portname("/dev/ttyUSB0");
 
 	stop_running = false;
@@ -47,12 +49,21 @@ void PCMdekoder::uninit(){
 	delete source;
 }
 
-void PCMdekoder::start_recording(int rec_time){
+bool PCMdekoder::start_recording(){
 // sequence recorder is prepared in gui.cpp
-	m_sample_down_counter = (int)((PCM_RATE*rec_time)/1000);
-	is_recording = true;
-	VERBOSE_PRINTF("startet recording of %i samples\n",m_sample_down_counter);
+	if (m_sample_down_counter <= 0)	{
+		VERBOSE_PRINTF("can record, please give number of samples to record\n");
+		return false;
+	}
 
+	if (is_recording){
+		VERBOSE_PRINTF("can record, already running\n");
+		return false;
+	}
+
+	is_recording = true;
+	VERBOSE_PRINTF("started recording of %i samples\n",m_sample_down_counter);
+	return true;
 }
 
 void PCMdekoder::run(){

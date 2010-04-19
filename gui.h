@@ -20,8 +20,8 @@ class gui : public QMainWindow, public Ui::MainWindow{
 		void setBaudrate(int newBaudrate);
 		void setBasename(QString newBasename);
 		void setScaleCommand(int newScale);
-		void setRecordingtime(int rectime);
 		void setVerbosity(int newVerbosity);
+		void setRecordlength(int newLength );
 
 	private:
 		CurvePlot* pcmplot;

@@ -17,7 +17,7 @@ class PCMdekoder : public QThread
 		bool init();
 		void uninit();
 
-		void start_recording(int rec_time);
+		bool start_recording();
 
 		void send_command( char* data, int len );
 
@@ -32,6 +32,7 @@ class PCMdekoder : public QThread
 		void Set_portname(QString name) { m_portname = name; }
 		void Set_verbosity(int val) { m_verboselevel = val; }
 		void Set_baudrate(int val) { m_baudrate = val; }
+		void Set_sample_down_counter(int val) { m_sample_down_counter = val; }
 
 		bool stop_running;
 		bool is_recording;

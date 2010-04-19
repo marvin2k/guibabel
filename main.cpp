@@ -19,7 +19,7 @@ int main( int argc, char* argv[])
 	QString devicename("/dev/ttyUSB0");
 	QString basename;
 	int newScale = -1;
-	int t_recordlen = 50;
+	int record_sample_number = 10240;
 	int baudrate = 230400;
 	bool start_gui  = true;
 //-------------------
@@ -38,7 +38,7 @@ int main( int argc, char* argv[])
 				VERBOSE_PRINTF("starting/showing gui disabled, cmd-line-only version\n");
 				break;
             case 'p':
-                VERBOSE_PRINTF("-p: Devicename serialport: %s !!!NOT SUPPORTED WITHGUI!!! trying to open...\n",devicename.toAscii().data());
+                VERBOSE_PRINTF("-p: Devicename serialport: %s !!!NOT SUPPORTED WITH GUI!!! trying to open...\n",devicename.toAscii().data());
 				struct serial_struct serinfo;
 	            int fd;
 	            fd = ::open(optarg, O_RDWR | O_NONBLOCK );
@@ -71,8 +71,8 @@ int main( int argc, char* argv[])
                 VERBOSE_PRINTF("-f: Basename for Outputfiles: %s\n",basename.toAscii().data());
                 break;
             case 't':
-                t_recordlen = atoi(optarg);
-                VERBOSE_PRINTF("-t: Usergiven recordingtime detected, will record for %i microseconds\n",t_recordlen);
+                record_sample_number = atoi(optarg);
+                VERBOSE_PRINTF("-t: Usergiven number of samples to record detected, will record %i samples\n",record_sample_number);
 				break;
             case 'b':
                 baudrate = atoi(optarg);
@@ -85,7 +85,7 @@ int main( int argc, char* argv[])
                 printf("\t-f \"basename for logging/writing\"\n");
                 printf("\t-p \"serial port\"\n");
                 printf("\t-b \"baudrate\"\n");
-                printf("\t-t \"recordingtime in microseconds\"\n");
+                printf("\t-t \"recordinglength in samples\"\n");
                 printf("\t-s \"send a special scaleCommand in the range of [0..24] via RS232 to filtersubsystem and exit\n");
                 exit(EXIT_FAILURE);
                 break;
@@ -112,7 +112,7 @@ int main( int argc, char* argv[])
 			w.setBasename(basename);
 		if (newScale != -1)
 			w.setScaleCommand(newScale);
-		w.setRecordingtime(t_recordlen);
+		w.setRecordlength(record_sample_number);
 		w.show();
 		return a.exec();
 	} else {
@@ -132,7 +132,8 @@ int main( int argc, char* argv[])
 			delete myDekoder->drain;
 			return EXIT_FAILURE;
 		}
-		myDekoder->start_recording(t_recordlen);
+		myDekoder->Set_sample_down_counter(record_sample_number);
+		myDekoder->start_recording();
 		while (myDekoder->is_recording) {
 			usleep(100);
 		}

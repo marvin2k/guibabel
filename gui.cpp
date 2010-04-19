@@ -112,12 +112,12 @@ void gui::setVerbosity(int newVerbosity){
 	mVerboseLevel = newVerbosity;
 }
 
-void gui::setRecordingtime(int rectime){
-	if (rectime <= 0) {
+void gui::setRecordlength(int newLength){
+	if (newLength <= 0) {
 		VERBOSE_PRINTF("negative or zero rec-time doesn't make sense\n");
 		return;
 	} else {
-		spinBox_sequence_recorder_runtime->setValue(rectime);
+		spinBox_record_length->setValue(newLength);
 	}
 }
 
@@ -145,7 +145,7 @@ void gui::trigger_update_bitwidth(int bw) {
 void gui::trigger_sequence_recorder_start() {
 	VERBOSE_PRINTF("starting sequence recorder\n");
 
-	int t_end = spinBox_sequence_recorder_runtime->value();
+	int record_length = spinBox_record_length->value();
 
 
 	if (lineEdit_datafile_basename->text() == "") {
@@ -169,9 +169,11 @@ void gui::trigger_sequence_recorder_start() {
 		return;
 	}
 
-	VERBOSE_PRINTF("Recording prepared, length is %ims, Basename %s\n",t_end,myDekoder->drain->getBasename().c_str());
+	myDekoder->Set_sample_down_counter(record_length);
 
-	myDekoder->start_recording(spinBox_sequence_recorder_runtime->value());
+	VERBOSE_PRINTF("Recording prepared, length is %i samples, Basename %s\n",record_length,myDekoder->drain->getBasename().c_str());
+
+	myDekoder->start_recording();
 
 }
 

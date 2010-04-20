@@ -155,7 +155,7 @@ int sequenceRecorder::pushPCMword( int16_t word ) {
 
 int sequenceRecorder::close() {
 	if (!isOpen){
-		VERBOSE_PRINTF("Vergebliches schließen der SequenceRecorder Filedescriptoren\n");
+		VERBOSE_PRINTF("Vergebliches schließen der SequenceRecorder Filedescriptoren, vermutlich schon geschlossen\n");
 		return EXIT_SUCCESS;
 	}
 	// close wavfile
@@ -174,6 +174,7 @@ int sequenceRecorder::close() {
 			char buf[80];
 			sprintf(buf,"# rows: %i",mRecordedElements);
 			tempstring = buf;
+			VERBOSE_PRINTF("replacing header-rows-line in octavefile\n");
 		}
 		tempfile << tempstring << std::endl;
 	}
@@ -187,12 +188,14 @@ int sequenceRecorder::close() {
 
     // all done!
 	isOpen = false;
+	VERBOSE_PRINTF("successfully closed files\n");
 
 	return EXIT_SUCCESS;
 }
 
 sequenceRecorder::~sequenceRecorder() {
-	close();
+	if (isOpen)
+		close();
 	VERBOSE_PRINTF("Closed sequenceRecorder\n");
 	//dtor
 }

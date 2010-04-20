@@ -35,7 +35,7 @@ gui::gui(QMainWindow *parent) : QMainWindow(parent){
 	setWindowTitle(myTitle);
 
 	// prepare basename input
-	mDefaultBasename = "babel_%Y-%m-%d_%H-%M-%S";
+	mDefaultBasename = "babel_%Y_%m_%d_%H_%M_%S";
 	connect(checkBox_basename, SIGNAL(stateChanged(int)), this, SLOT(stateChanged_checkbox_basename(int)));
 	setBasename(mDefaultBasename);
 
@@ -46,7 +46,7 @@ gui::gui(QMainWindow *parent) : QMainWindow(parent){
 	isDrawing = false;
 	myTimer_pcmplot_refresh = new QTimer(this);
 	connect(myTimer_pcmplot_refresh, SIGNAL(timeout()), this, SLOT(refresh_pcmplot()));
-	myTimer_pcmplot_refresh->setInterval(5);
+	myTimer_pcmplot_refresh->setInterval(20);
 	connect(spinBox_bitwidth, SIGNAL(valueChanged(int)), this, SLOT(trigger_update_bitwidth(int)));
 
 

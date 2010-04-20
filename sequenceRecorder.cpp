@@ -28,7 +28,7 @@ int sequenceRecorder::setBasename( ) {
 
 	// basic prefix for all sequence-files
 	char buffer[80];
-    strftime(buffer,80,"babel_%Y-%m-%d_%H-%M-%S",&timedata);
+    strftime(buffer,80,"babel_%Y_%m_%d_%H_%M_%S",&timedata);
 	std::string basename( buffer );
 
 	return setBasename(basename);
@@ -129,6 +129,7 @@ int sequenceRecorder::open( ){
 	gettimeofday(&time_start, NULL);
 
 	isOpen = true;
+	mRecordedElements = 0;
 
 	return isOpen;
 }
@@ -174,7 +175,7 @@ int sequenceRecorder::close() {
 			char buf[80];
 			sprintf(buf,"# rows: %i",mRecordedElements);
 			tempstring = buf;
-			VERBOSE_PRINTF("replacing header-rows-line in octavefile\n");
+			VERBOSE_PRINTF("found header-rows-line in octavefile, replacing it %i\n",mRecordedElements);
 		}
 		tempfile << tempstring << std::endl;
 	}

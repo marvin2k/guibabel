@@ -92,12 +92,9 @@ void PCMdekoder::run(){
 				delete drain;
 				is_recording = false;
 			}
-		} else {
-			// wait a little bit to unstress cpu
-			usleep(5);
 		}
 	}
-	VERBOSE_PRINTF("serial worker thread finished running\n");
+	VERBOSE_PRINTF("serial worker thread was exited, and finished running\n");
 }
 
 void PCMdekoder::send_command(char * data, int len){

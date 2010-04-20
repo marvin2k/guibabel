@@ -301,7 +301,7 @@ of received signal</string>
         <widget class="QLabel" name="label">
          <property name="text">
           <string>wavs/$NAME.wav
-data/$NAME.m</string>
+data/$NAME.mat</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -339,7 +339,7 @@ data/$NAME.m</string>
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="layoutWidget">
+   <widget class="QWidget" name="layoutWidget2">
     <property name="geometry">
      <rect>
       <x>350</x>

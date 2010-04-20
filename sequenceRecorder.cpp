@@ -69,7 +69,7 @@ int sequenceRecorder::write_octave_header(std::fstream *fd){
 
 	*fd << "# created by guibabel, "<<timestring<<" <"<<getenv("USER")<<"@"<<hostname<<">"<<std::endl;
 
-	*fd << "# name: "<<mBasename<<std::endl;
+	*fd << "# name: mic_data"<<std::endl;
 
 	*fd << "# type: matrix"<<std::endl;
 

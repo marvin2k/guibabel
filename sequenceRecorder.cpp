@@ -146,7 +146,7 @@ int sequenceRecorder::pushPCMword( int16_t word ) {
 
 	//some kind of MATLAB/octave-readable format
 	int t_usec = (time_now.tv_sec-time_start.tv_sec)*1000000 + (time_now.tv_usec-time_start.tv_usec);
-	fd_matlab << t_usec <<", "<<word<<std::endl;
+	fd_matlab << " " << t_usec <<" "<<word<<std::endl;
 
 	mRecordedElements++;
 

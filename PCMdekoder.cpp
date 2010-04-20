@@ -27,6 +27,10 @@ PCMdekoder::~PCMdekoder() {
 
 bool PCMdekoder::init(){
 
+	m_status.invalidPCMwords = 0;
+	m_status.validPCMwords = 0;
+	m_status.recordedPCMwords = 0;
+
 	// prepare serialport
 	source = new serialport();
 
@@ -61,6 +65,7 @@ bool PCMdekoder::start_recording(){
 		return false;
 	}
 
+	m_status.recordedPCMwords = 0;
 	is_recording = true;
 	VERBOSE_PRINTF("started recording of %i samples\n",m_sample_down_counter);
 	return true;
@@ -71,10 +76,14 @@ void PCMdekoder::run(){
 	//exec();//normal in qthreads to enter qt-command queue
 
 	while ( !stop_running ) {
-		source->read_pcm(&m_lastValue,1);
+		source->readPCMword(&m_lastValue);
+		m_status.invalidPCMwords = source->m_invalid;
+		m_status.validPCMwords = source->m_valid;
+
 		if (is_recording){
 			if (m_sample_down_counter > 0)  {
 				m_sample_down_counter--;
+				m_status.recordedPCMwords++;
 				drain->pushPCMword(m_lastValue);
 			} else {
 				VERBOSE_PRINTF("guibabel finished recording\n");
@@ -85,7 +94,7 @@ void PCMdekoder::run(){
 			}
 		} else {
 			// wait a little bit to unstress cpu
-			usleep(50);
+			usleep(5);
 		}
 	}
 	VERBOSE_PRINTF("serial worker thread finished running\n");

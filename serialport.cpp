@@ -88,6 +88,9 @@ bool serialport::init(std::string devicename, int baudrate, int verbose_flag) {
 		mIsOpen = true;
 	}
 
+	m_valid = 0;
+	m_invalid = 0;
+
 	return mIsOpen;
 }
 
@@ -113,18 +116,15 @@ void serialport::uninit(){
 
 }
 
-int serialport::read_pcm( int* values, int number ) {
+int serialport::readPCMword( int* value ) {
 
 	char byte;
 	int16_t result = 0;
-	static int state = 0;
-	static int8_t first_byte = 0;
-	static int8_t second_byte = 0;
-	int counter = 0;
+	int state = 0;
+	int8_t first_byte = 0;
+	int8_t second_byte = 0;
 
-	//VERBOSE_PRINTF("beginning read_pcm loop, state=%i, firstbyte=%i, secondbyte=%i\n",state,first_byte,second_byte);
-
-	while (counter < number) {
+	while (state != 2) {
 		int ret = read(&byte,1);
 		if ( ret < 0) {
 			VERBOSE_PRINTF("timeout?\n");
@@ -145,17 +145,17 @@ int serialport::read_pcm( int* values, int number ) {
 			result = ((first_byte&0x7f)<<9) | ((second_byte&0x7f)<<2);
 			result = result>>2;
 
-			state = 0;
-			values[counter] = result;
-			mLastPcmValue = result;
-			counter++;
+			state = 2;
+			*value = result;
+			m_valid++;
 		} else {
 			VERBOSE_PRINTF("skipping value\n");
 			state = 0;
+			m_invalid++;
 		}
 
 	}
-	return counter;//nuber of pcm-bytes read
+	return 0;
 }
 
 int serialport::read( char* buffer, size_t nr ) {

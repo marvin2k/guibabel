@@ -25,6 +25,8 @@ class sequenceRecorder
 		int setBasename(std::string basename);
 		void setVerbosity(int flag);
 
+		int mRecordedElements;
+
 	private:
 
 		struct timeval time_start;
@@ -32,15 +34,13 @@ class sequenceRecorder
 
 		int isOpen;
 
-		int mRecordedElements;
-
 		std::string mBasename;
 		int mVerboseFlag;
 
 		std::fstream fd_matlab;					//file to write out logged values
 		std::string matlabfilename;
-		std::string wavfilename;
 		SNDFILE* fd_wavfile;					//File to save wav-Data
+		std::string wavfilename;
 
 		int write_octave_header(std::fstream *fd);
 

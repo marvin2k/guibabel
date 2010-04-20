@@ -193,7 +193,7 @@ void gui::stateChanged_checkbox_basename( int newstate ) {
 void gui::trigger_serialport(){
 
 	if (button_connect_disconnect_serialport->text() == "connect serialport") {
-		VERBOSE_PRINTF("connecting serialport, starting workerthread and displaying grph\n");
+		VERBOSE_PRINTF("connecting serialport, starting workerthread and displaying graph\n");
 
 		myDekoder = new PCMdekoder();
 
@@ -249,6 +249,8 @@ void gui::refresh_pcmplot(){
 	int time_ms;
 
 	value = myDekoder->Get_lastValue();
+	struct PCMdekoder::DekoderStatus_t status = myDekoder->Get_Status();
+
 
 	gettimeofday(&t_sequence, NULL);
 
@@ -256,10 +258,11 @@ void gui::refresh_pcmplot(){
 
 	double mean = pcmplot->addPointToCurve("PCM S14", time_ms, value);
 
-	char myString[80];
-	sprintf(myString,"actual dataplot, mean: %-4.2f",mean);
-	QString myTitle(myString);
-	label_pcmplot->setText(myTitle);
+	QString text;
+	lab_mean->setText(text.setNum(mean));
+	lab_valid->setText(text.setNum(status.validPCMwords));
+	lab_invalid->setText(text.setNum(status.invalidPCMwords));
+	lab_rec->setText(text.setNum(status.recordedPCMwords));
 }
 
 void gui::refresh_serialports(){

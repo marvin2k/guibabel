@@ -16,7 +16,7 @@ class serialport {
     ~serialport();
 
 	int read( char *buffer, size_t len);
-	int read_pcm( int* values, int number );
+	int readPCMword( int* value );
 
 	int write( char* buffer, size_t len);
 
@@ -25,9 +25,10 @@ class serialport {
     bool mIsOpen;// "open" means that our new tty-setting are written to device and fd is ready for reading
 
 
-  private:
+	int m_valid;
+	int m_invalid;
 
-	int16_t mLastPcmValue;
+  private:
 
 	// will be used our "raw" port settings
 	struct termios tty;

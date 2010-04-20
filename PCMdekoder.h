@@ -39,9 +39,19 @@ class PCMdekoder : public QThread
 
 		sequenceRecorder* drain;
 
+		struct DekoderStatus_t {
+			int validPCMwords;
+			int invalidPCMwords;
+			int recordedPCMwords;
+		};
+
+		DekoderStatus_t Get_Status() {return m_status; }
+
 	protected:
 
 	private:
+
+		DekoderStatus_t m_status;
 
 		int m_recordingTime;
 		int m_lastValue;
@@ -50,6 +60,8 @@ class PCMdekoder : public QThread
 		int m_baudrate;
 
 		int m_sample_down_counter;
+
+		int m_invalid;
 
 		serialport* source;
 

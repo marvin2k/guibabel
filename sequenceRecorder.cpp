@@ -51,6 +51,38 @@ void sequenceRecorder::setVerbosity( int flag ){
 	mVerboseFlag = flag;
 }
 
+int sequenceRecorder::write_octave_header(std::fstream *fd){
+	char *timestring = new char[80];
+	char *hostname = new char[80];
+
+	time_t date_now;
+	struct tm timedata;
+
+	date_now = time(NULL);
+	timedata = *(localtime(&date_now));
+
+	strftime(timestring,80,"%a %b %d %H:%M:%S %Y %Z",&timedata);
+	if (gethostname(hostname,80)) {
+		printf("some problem accessing the hostname\n");
+		sprintf(hostname,"something");
+	}
+
+	*fd << "# created by guibabel, "<<timestring<<" <"<<getenv("USER")<<"@"<<hostname<<">"<<std::endl;
+
+	*fd << "# name: "<<mBasename<<std::endl;
+
+	*fd << "# type: matrix"<<std::endl;
+
+	*fd << "# rows:"<< std::endl;
+
+	*fd << "# columns: 2"<<std::endl;
+
+	delete timestring;
+	delete hostname;
+
+	return 1;
+}
+
 int sequenceRecorder::open( ){
 	//-------------------
 	// Prepare Datafiles:
@@ -66,19 +98,16 @@ int sequenceRecorder::open( ){
 
     VERBOSE_PRINTF("Opening sequence files with basename \"%s\"\n",mBasename.c_str());
 
-	std::string name;
-
-	name = "data/"+mBasename+".m";
-	VERBOSE_PRINTF("Matlabfile: %s\n", name.c_str());
-	fd_matlab.open(name.c_str());
+	matlabfilename = "data/"+mBasename+".mat";
+	VERBOSE_PRINTF("Matlabfile: %s\n", matlabfilename.c_str());
+	fd_matlab.open(matlabfilename.c_str(), std::ios_base::in | std::ios_base::out | std::ios_base::trunc );
 
 	if (fd_matlab.bad()){
 		perror("Error opening matlabfile\n");
 		return EXIT_FAILURE;
 	}
 
-	len = sprintf(buf,"%% MATLAB/Octave compatible logging-format. Recorded by babel\n");
-	fd_matlab.write(buf,len);
+	write_octave_header(&fd_matlab);
 
 	//open wav file
 	struct SF_INFO wav_info;
@@ -87,9 +116,9 @@ int sequenceRecorder::open( ){
 	wav_info.channels = 1;
 	wav_info.format = (SF_FORMAT_WAV | SF_FORMAT_PCM_16);
 
-	name = "wavs/"+mBasename+".wav";
-	VERBOSE_PRINTF("Wavfile: %s\n", name.c_str());
-	fd_wavfile = sf_open(name.c_str(), SFM_WRITE, &wav_info );
+	wavfilename = "wavs/"+mBasename+".wav";
+	VERBOSE_PRINTF("Wavfile: %s\n", wavfilename.c_str());
+	fd_wavfile = sf_open(wavfilename.c_str(), SFM_WRITE, &wav_info );
 
 	if (fd_wavfile == NULL) {
 		fd_matlab.close();
@@ -97,24 +126,29 @@ int sequenceRecorder::open( ){
 		return EXIT_FAILURE;
 	}
 
-	isOpen = 1;
+	gettimeofday(&time_start, NULL);
+
+	isOpen = true;
 
 	return isOpen;
 }
 
-int sequenceRecorder::pushPCMword( int16_t word, struct timeval t_seq ) {
-	// do actual writing
+int sequenceRecorder::pushPCMword( int16_t word ) {
 	if (!isOpen) {
-		printf("fehler beim schreiben in sequencerekorder: keine datei\n");
+		printf("fehler beim schreiben in sequencerekorder: keine dateien geöffnet\n");
 		return EXIT_FAILURE;
 	}
 
+	gettimeofday(&time_now, NULL);
+
 	//wavfile
 	sf_writef_short( fd_wavfile, (const short *)&word, 1);
-	//some kind of matlab-readable format
-	int t_usec = t_seq.tv_sec*1000000 + t_seq.tv_usec;
-	len = sprintf(buf,"%i, %i;\n",t_usec, word);
-	fd_matlab.write(buf,len);
+
+	//some kind of MATLAB/octave-readable format
+	int t_usec = (time_now.tv_sec-time_start.tv_sec)*1000000 + (time_now.tv_usec-time_start.tv_usec);
+	fd_matlab << t_usec <<", "<<word<<std::endl;
+
+	mRecordedElements++;
 
 	return EXIT_SUCCESS;
 }
@@ -127,8 +161,32 @@ int sequenceRecorder::close() {
 	// close wavfile
 	sf_close( fd_wavfile );
 
-	// close matlabfile
+	// close matlabfile, write number of rows to header
+	std::fstream tempfile;
+	tempfile.open(".tempfile.mat", std::ios_base::in | std::ios_base::out | std::ios_base::trunc);
+	std::string tempstring;
+	fd_matlab.flush();
+	fd_matlab.seekp(std::ios_base::beg);
+
+	while (!fd_matlab.eof()){
+		getline(fd_matlab, tempstring);
+		if (tempstring == "# rows:") {
+			char buf[80];
+			sprintf(buf,"# rows: %i",mRecordedElements);
+			tempstring = buf;
+		}
+		tempfile << tempstring << std::endl;
+	}
+
+	tempfile.close();
 	fd_matlab.close();
+
+    remove(matlabfilename.c_str());
+    // rename old to new
+    rename(".tempfile.mat",matlabfilename.c_str());
+
+    // all done!
+	isOpen = false;
 
 	return EXIT_SUCCESS;
 }

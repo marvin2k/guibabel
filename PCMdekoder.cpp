@@ -70,15 +70,12 @@ void PCMdekoder::run(){
 	VERBOSE_PRINTF("Dekoder-Thread called on %s with thread ID %i\n",m_portname.toAscii().data(),(int)currentThreadId());
 	//exec();//normal in qthreads to enter qt-command queue
 
-	struct timeval t_start;
-	gettimeofday(&t_start, NULL);
-
 	while ( !stop_running ) {
 		source->read_pcm(&m_lastValue,1);
 		if (is_recording){
 			if (m_sample_down_counter > 0)  {
 				m_sample_down_counter--;
-				drain->pushPCMword(m_lastValue, t_start);
+				drain->pushPCMword(m_lastValue);
 			} else {
 				VERBOSE_PRINTF("guibabel finished recording\n");
 
@@ -88,7 +85,7 @@ void PCMdekoder::run(){
 			}
 		} else {
 			// wait a little bit to unstress cpu
-			usleep(5);
+			usleep(50);
 		}
 	}
 	VERBOSE_PRINTF("serial worker thread finished running\n");

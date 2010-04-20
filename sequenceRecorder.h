@@ -18,7 +18,7 @@ class sequenceRecorder
 
 		int open();
 		int close();
-		int pushPCMword( int16_t word, struct timeval t_seq );
+		int pushPCMword( int16_t word );
 
 		int setBasename();
 		std::string getBasename();
@@ -27,17 +27,23 @@ class sequenceRecorder
 
 	private:
 
+		struct timeval time_start;
+		struct timeval time_now;
+
 		int isOpen;
+
+		int mRecordedElements;
 
 		std::string mBasename;
 		int mVerboseFlag;
 
-		std::ofstream fd_matlab;					//file to write out logged values
+		std::fstream fd_matlab;					//file to write out logged values
+		std::string matlabfilename;
+		std::string wavfilename;
 		SNDFILE* fd_wavfile;					//File to save wav-Data
 
-		// some temporary space to store data
-		char buf[80];
-		int len;
+		int write_octave_header(std::fstream *fd);
+
 
 };
 

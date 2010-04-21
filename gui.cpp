@@ -189,15 +189,22 @@ void gui::trigger_sequence_recorder_start() {
 
 	VERBOSE_PRINTF("Recording prepared, length is %i samples, Basename %s\n",record_length,myDekoder->drain->getBasename().c_str());
 
-	connect(myDekoder, SIGNAL(recordingFinished()), this, SLOT(enable_start_sequence()));
+	le_pwm->setDisabled(true);
+	le_speed->setDisabled(true);
+	le_torque->setDisabled(true);
+
 	pushButton_start_sequence_recorder->setDisabled(true);
 
 	myDekoder->start_recording();
 
 }
 
-void gui::enable_start_sequence(){
+void gui::sequence_recording_finished(){
 	pushButton_start_sequence_recorder->setEnabled(true);
+
+	le_pwm->setEnabled(true);
+	le_speed->setEnabled(true);
+	le_torque->setEnabled(true);
 }
 
 void gui::stateChanged_checkbox_basename( int newstate ) {
@@ -224,6 +231,10 @@ void gui::trigger_serialport(){
 		myDekoder->Set_verbosity(mVerboseLevel);
 		myDekoder->Set_baudrate(mBaudrate);
 		myDekoder->Set_recordingTime(-1);//run indefinetly
+
+		// recording finished signal
+		connect(myDekoder, SIGNAL(recordingFinished()), this, SLOT(sequence_recording_finished()));
+
 		if (myDekoder->init()){
 			// success! aaaaand GO!
 			myDekoder->start();
@@ -268,6 +279,11 @@ void gui::trigger_serialport(){
 		pushButton_start_sequence_recorder->setDisabled(true);
 		pushButton_send_scale_command->setDisabled(true);
 		spinBox_bitwidth->setDisabled(true);
+
+		lab_mean->setText("0");
+		lab_valid->setText("0");
+		lab_invalid->setText("0");
+		lab_rec->setText("0");
 	}
 }
 

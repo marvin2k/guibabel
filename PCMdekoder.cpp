@@ -1,14 +1,10 @@
 #include "PCMdekoder.h"
 
-#include <QDebug>
-#include <QString>
 
 #define VERBOSE_PRINTF(...) if (m_verboselevel > 0) { \
                                 printf("%s:%i: ",__FILE__,__LINE__);\
                                 printf(__VA_ARGS__);\
                             }
-
-#define PCM_RATE 9043
 
 PCMdekoder::PCMdekoder() {
 	//ctor
@@ -91,6 +87,7 @@ void PCMdekoder::run(){
 				drain->close();
 				delete drain;
 				is_recording = false;
+				emit recordingFinished();
 			}
 		}
 	}

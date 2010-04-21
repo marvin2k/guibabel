@@ -1,7 +1,11 @@
 #ifndef PCMDEKODER_H
 #define PCMDEKODER_H
 
+#include <QtCore>
 #include <QThread>
+#include <QString>
+
+#include <QDebug>
 #include <QString>
 
 #include "serialport.h"
@@ -9,9 +13,11 @@
 
 class PCMdekoder : public QThread
 {
+	Q_OBJECT
+
 	public:
 		PCMdekoder();
-		virtual ~PCMdekoder();
+		~PCMdekoder();
 
 		void run();
 		bool init();
@@ -64,6 +70,9 @@ class PCMdekoder : public QThread
 		int m_invalid;
 
 		serialport* source;
+
+	signals:
+		void recordingFinished();
 
 };
 

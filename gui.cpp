@@ -189,8 +189,15 @@ void gui::trigger_sequence_recorder_start() {
 
 	VERBOSE_PRINTF("Recording prepared, length is %i samples, Basename %s\n",record_length,myDekoder->drain->getBasename().c_str());
 
+	connect(myDekoder, SIGNAL(recordingFinished()), this, SLOT(enable_start_sequence()));
+	pushButton_start_sequence_recorder->setDisabled(true);
+
 	myDekoder->start_recording();
 
+}
+
+void gui::enable_start_sequence(){
+	pushButton_start_sequence_recorder->setEnabled(true);
 }
 
 void gui::stateChanged_checkbox_basename( int newstate ) {

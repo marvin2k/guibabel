@@ -48,9 +48,7 @@
 		<Unit filename="guibabel.pro">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
-		<Unit filename="main.cpp">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
+		<Unit filename="main.cpp" />
 		<Unit filename="sequenceRecorder.cpp">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>

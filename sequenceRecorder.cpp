@@ -166,8 +166,8 @@ int sequenceRecorder::pushPCMword( int16_t word ) {
 	return EXIT_SUCCESS;
 }
 
-int sequenceRecorder::appendStringToOctaveFile( std::fstream *fd, std::string text){
-	*fd << "# name: jointID"<<std::endl;
+int sequenceRecorder::appendStringToOctaveFile( std::fstream *fd, std::string type, std::string text){
+	*fd << "# name: "<< type <<std::endl;
 
 	*fd << "# type: sq_string"<<std::endl;
 
@@ -189,8 +189,8 @@ int sequenceRecorder::close() {
 	sf_close( fd_wavfile );
 
 	// append jointID and filterID to logfile
-	appendStringToOctaveFile(&fd_matlab, m_filterID );
-	appendStringToOctaveFile(&fd_matlab, m_jointID );
+	appendStringToOctaveFile(&fd_matlab, "filterID", m_filterID );
+	appendStringToOctaveFile(&fd_matlab, "jointID", m_jointID );
 
 	// close matlabfile, write number of rows to header
 	std::fstream tempfile;

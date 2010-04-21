@@ -47,7 +47,7 @@ class sequenceRecorder
 		std::string wavfilename;
 
 		int write_octave_header(std::fstream *fd);
-		int appendStringToOctaveFile( std::fstream *fd, std::string text );
+		int appendStringToOctaveFile( std::fstream *fd, std::string type, std::string text );
 
 
 };

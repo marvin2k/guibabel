@@ -6,6 +6,7 @@
 #include <time.h>						  // nice timestrings for log files
 #include <sys/time.h>					// hires usecs for timestamps
 #include <fstream>
+#include <vector>
 
 class sequenceRecorder
 {
@@ -26,12 +27,14 @@ class sequenceRecorder
 		void setjointID( std::string id );
 		void setfilterID( std::string id );
 		void setVerbosity(int flag);
+		void setpwmspeedtorque( int pwm, int speed, int torque );
 
 		int mRecordedElements;
 
 	private:
 		std::string m_jointID;
 		std::string m_filterID;
+		std::vector<int> motorData;
 
 		struct timeval time_start;
 		struct timeval time_now;
@@ -48,6 +51,7 @@ class sequenceRecorder
 
 		int write_octave_header(std::fstream *fd);
 		int appendStringToOctaveFile( std::fstream *fd, std::string type, std::string text );
+		int appendVectorToOctaveFile( std::fstream *fd, std::string type, std::vector<int> *data);
 
 
 };

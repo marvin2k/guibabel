@@ -126,6 +126,7 @@ int main( int argc, char* argv[])
 
 		myDekoder->drain = new sequenceRecorder();
 		myDekoder->drain->setVerbosity(verbose_flag);
+		myDekoder->drain->setpwmspeedtorque(-1, -1, -1);
 		if (!basename.isEmpty())
 			myDekoder->drain->setBasename(basename.toAscii().data());
 

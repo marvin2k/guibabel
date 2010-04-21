@@ -63,6 +63,18 @@ void sequenceRecorder::setVerbosity( int flag ){
 	mVerboseFlag = flag;
 }
 
+void sequenceRecorder::setpwmspeedtorque( int pwm, int speed, int torque ) {
+
+	if (motorData.size() > 0)
+		VERBOSE_PRINTF("clearing motorData vector\n");
+
+	motorData.push_back(pwm);
+	motorData.push_back(speed);
+	motorData.push_back(torque);
+
+}
+
+
 int sequenceRecorder::write_octave_header(std::fstream *fd){
 	char *timestring = new char[80];
 	char *hostname = new char[80];
@@ -76,10 +88,12 @@ int sequenceRecorder::write_octave_header(std::fstream *fd){
 	strftime(timestring,80,"%a %b %d %H:%M:%S %Y %Z",&timedata);
 	if (gethostname(hostname,80)) {
 		printf("some problem accessing the hostname\n");
-		sprintf(hostname,"something");
+		sprintf(hostname,"defaulthostname");
 	}
 
 	*fd << "# created by guibabel, "<<timestring<<" <"<<getenv("USER")<<"@"<<hostname<<">"<<std::endl;
+
+	appendStringToOctaveFile(fd, "recTime", std::string(timestring) );
 
 	*fd << "# name: sequenzData"<<std::endl;
 
@@ -166,6 +180,24 @@ int sequenceRecorder::pushPCMword( int16_t word ) {
 	return EXIT_SUCCESS;
 }
 
+int sequenceRecorder::appendVectorToOctaveFile( std::fstream *fd, std::string type, std::vector<int> *data){
+	*fd << "# name: "<< type <<std::endl;
+
+	*fd << "# type: matrix"<<std::endl;
+
+	*fd << "# rows: 1"<< std::endl;
+
+	*fd << "# columns: "<< data->size()<<std::endl;
+
+	for (unsigned int i=0;i<data->size();i++){
+		*fd << " " << data->at(i);
+	}
+
+	*fd << std::endl;
+
+	return 1;
+}
+
 int sequenceRecorder::appendStringToOctaveFile( std::fstream *fd, std::string type, std::string text){
 	*fd << "# name: "<< type <<std::endl;
 
@@ -191,6 +223,7 @@ int sequenceRecorder::close() {
 	// append jointID and filterID to logfile
 	appendStringToOctaveFile(&fd_matlab, "filterID", m_filterID );
 	appendStringToOctaveFile(&fd_matlab, "jointID", m_jointID );
+	appendVectorToOctaveFile(&fd_matlab, "motorData", &motorData);
 
 	// close matlabfile, write number of rows to header
 	std::fstream tempfile;

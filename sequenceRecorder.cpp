@@ -11,10 +11,14 @@
 sequenceRecorder::sequenceRecorder() {
 	mVerboseFlag = 0;
 	isOpen = 0;
+	m_jointID = "default";
+	m_filterID = "default";
 }
 sequenceRecorder::sequenceRecorder(std::string basename) {
 	mVerboseFlag = 0;
 	isOpen = 0;
+	m_jointID = "default";
+	m_filterID = "default";
 	setBasename(basename);
 }
 
@@ -33,6 +37,14 @@ int sequenceRecorder::setBasename( ) {
 
 	return setBasename(basename);
 }
+
+void sequenceRecorder::setjointID( std::string id ){
+	m_jointID = id;
+}
+void sequenceRecorder::setfilterID( std::string id ){
+	m_filterID = id;
+}
+
 int sequenceRecorder::setBasename( std::string basename ){
 	if (isOpen) {
 		printf("error, alreday open...\n");
@@ -69,11 +81,11 @@ int sequenceRecorder::write_octave_header(std::fstream *fd){
 
 	*fd << "# created by guibabel, "<<timestring<<" <"<<getenv("USER")<<"@"<<hostname<<">"<<std::endl;
 
-	*fd << "# name: mic_data"<<std::endl;
+	*fd << "# name: sequenzData"<<std::endl;
 
 	*fd << "# type: matrix"<<std::endl;
 
-	*fd << "# rows:"<< std::endl;
+	*fd << "# REPLACEME1:"<< std::endl;
 
 	*fd << "# columns: 2"<<std::endl;
 
@@ -154,6 +166,20 @@ int sequenceRecorder::pushPCMword( int16_t word ) {
 	return EXIT_SUCCESS;
 }
 
+int sequenceRecorder::appendStringToOctaveFile( std::fstream *fd, std::string text){
+	*fd << "# name: jointID"<<std::endl;
+
+	*fd << "# type: sq_string"<<std::endl;
+
+	*fd << "# elements: 1"<< std::endl;
+
+	*fd << "# length: "<< text.length()<<std::endl;
+
+	*fd << text << std::endl;
+
+	return 1;
+}
+
 int sequenceRecorder::close() {
 	if (!isOpen){
 		VERBOSE_PRINTF("Vergebliches schließen der SequenceRecorder Filedescriptoren, vermutlich schon geschlossen\n");
@@ -161,6 +187,10 @@ int sequenceRecorder::close() {
 	}
 	// close wavfile
 	sf_close( fd_wavfile );
+
+	// append jointID and filterID to logfile
+	appendStringToOctaveFile(&fd_matlab, m_filterID );
+	appendStringToOctaveFile(&fd_matlab, m_jointID );
 
 	// close matlabfile, write number of rows to header
 	std::fstream tempfile;
@@ -171,7 +201,7 @@ int sequenceRecorder::close() {
 
 	while (!fd_matlab.eof()){
 		getline(fd_matlab, tempstring);
-		if (tempstring == "# rows:") {
+		if (tempstring == "# REPLACEME1:") {
 			char buf[80];
 			sprintf(buf,"# rows: %i",mRecordedElements);
 			tempstring = buf;

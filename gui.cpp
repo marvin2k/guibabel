@@ -49,6 +49,17 @@ gui::gui(QMainWindow *parent) : QMainWindow(parent){
 	myTimer_pcmplot_refresh->setInterval(20);
 	connect(spinBox_bitwidth, SIGNAL(valueChanged(int)), this, SLOT(trigger_update_bitwidth(int)));
 
+	// prepare properties section:
+	cbx_filterID->addItem("fir_massive");
+	cbx_filterID->addItem("fir_three_staged");
+	cbx_filterID->addItem("laufsumme_filter2");
+	cbx_filterID->addItem("cic_compensated");
+	cbx_filterID->addItem("cic_pure");
+	cbx_filterID->addItem("other");
+
+	cbx_jointID->addItem("seven");
+	cbx_jointID->addItem("YanYue");
+	cbx_jointID->addItem("other");
 
 	// prepare sequenceRecorder
 	connect(pushButton_start_sequence_recorder, SIGNAL(clicked()), this, SLOT(trigger_sequence_recorder_start()));
@@ -77,7 +88,7 @@ gui::~gui(){
 	VERBOSE_PRINTF("finished deletion of GUI\n");
 }
 
-// handling of enabling/disablin the propriate boxes, according to the basename
+// handling of enabling/disabling the propriate boxes, according to the basename
 void gui::setBasename(QString newBasename){
 	if (newBasename == mDefaultBasename){
 		lineEdit_datafile_basename->setDisabled(true);
@@ -168,6 +179,8 @@ void gui::trigger_sequence_recorder_start() {
 		delete myDekoder->drain;
 		return;
 	}
+	myDekoder->drain->setjointID( cbx_jointID->currentText().toAscii().data() );
+	myDekoder->drain->setfilterID( cbx_filterID->currentText().toAscii().data() );
 
 	myDekoder->Set_sample_down_counter(record_length);
 
@@ -209,6 +222,8 @@ void gui::trigger_serialport(){
 			action_connect_disconnect_serialport->setText("disconnect serialport");
 			comboBox_avail_serialports->setDisabled(true);
 			button_refresh_serialports->setDisabled(true);
+			cbx_jointID->setDisabled(true);
+			cbx_filterID->setDisabled(true);
 			checkBox_basename->setDisabled(true);
 			myTimer_pcmplot_refresh->start();
 
@@ -231,6 +246,8 @@ void gui::trigger_serialport(){
 		action_connect_disconnect_serialport->setText("connect serialport");
 		comboBox_avail_serialports->setEnabled(true);
 		button_refresh_serialports->setEnabled(true);
+		cbx_jointID->setEnabled(true);
+		cbx_filterID->setEnabled(true);
 		checkBox_basename->setEnabled(true);
 		myTimer_pcmplot_refresh->stop();
 

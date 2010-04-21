@@ -23,11 +23,15 @@ class sequenceRecorder
 		int setBasename();
 		std::string getBasename();
 		int setBasename(std::string basename);
+		void setjointID( std::string id );
+		void setfilterID( std::string id );
 		void setVerbosity(int flag);
 
 		int mRecordedElements;
 
 	private:
+		std::string m_jointID;
+		std::string m_filterID;
 
 		struct timeval time_start;
 		struct timeval time_now;
@@ -43,6 +47,7 @@ class sequenceRecorder
 		std::string wavfilename;
 
 		int write_octave_header(std::fstream *fd);
+		int appendStringToOctaveFile( std::fstream *fd, std::string text );
 
 
 };

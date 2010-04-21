@@ -126,6 +126,8 @@ int main( int argc, char* argv[])
 
 		myDekoder->drain = new sequenceRecorder();
 		myDekoder->drain->setVerbosity(verbose_flag);
+		if (!basename.isEmpty())
+			myDekoder->drain->setBasename(basename.toAscii().data());
 
 		if (!myDekoder->drain->open()){
 			printf("Error opening recorder, can't record\n");

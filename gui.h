@@ -13,6 +13,7 @@
 class gui : public QMainWindow, public Ui::MainWindow{
 	Q_OBJECT
 
+
 	public:
 		gui (QMainWindow *parent = 0);
 		~gui();

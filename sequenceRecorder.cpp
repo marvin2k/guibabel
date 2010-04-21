@@ -76,6 +76,7 @@ void sequenceRecorder::setpwmspeedtorque( int pwm, int speed, int torque ) {
 
 
 int sequenceRecorder::write_octave_header(std::fstream *fd){
+	VERBOSE_PRINTF("writing octave header\n");
 	char *timestring = new char[80];
 	char *hostname = new char[80];
 
@@ -95,7 +96,7 @@ int sequenceRecorder::write_octave_header(std::fstream *fd){
 
 	appendStringToOctaveFile(fd, "recTime", std::string(timestring) );
 
-	*fd << "# name: sequenzData"<<std::endl;
+	*fd << "# name: sequenceData"<<std::endl;
 
 	*fd << "# type: matrix"<<std::endl;
 
@@ -180,8 +181,9 @@ int sequenceRecorder::pushPCMword( int16_t word ) {
 	return EXIT_SUCCESS;
 }
 
-int sequenceRecorder::appendVectorToOctaveFile( std::fstream *fd, std::string type, std::vector<int> *data){
-	*fd << "# name: "<< type <<std::endl;
+int sequenceRecorder::appendVectorToOctaveFile( std::fstream *fd, std::string name, std::vector<int> *data){
+	VERBOSE_PRINTF("adding vector %s to octave logfile\n",name.c_str())
+	*fd << "# name: "<< name <<std::endl;
 
 	*fd << "# type: matrix"<<std::endl;
 
@@ -198,8 +200,9 @@ int sequenceRecorder::appendVectorToOctaveFile( std::fstream *fd, std::string ty
 	return 1;
 }
 
-int sequenceRecorder::appendStringToOctaveFile( std::fstream *fd, std::string type, std::string text){
-	*fd << "# name: "<< type <<std::endl;
+int sequenceRecorder::appendStringToOctaveFile( std::fstream *fd, std::string name, std::string text){
+	VERBOSE_PRINTF("adding string %s to octave logfile\n",name.c_str())
+	*fd << "# name: "<< name <<std::endl;
 
 	*fd << "# type: sq_string"<<std::endl;
 
@@ -238,7 +241,7 @@ int sequenceRecorder::close() {
 			char buf[80];
 			sprintf(buf,"# rows: %i",mRecordedElements);
 			tempstring = buf;
-			VERBOSE_PRINTF("found header-rows-line in octavefile, replacing it %i\n",mRecordedElements);
+			VERBOSE_PRINTF("found header-rows-line in octavefile, replacing it with %i\n",mRecordedElements);
 		}
 		tempfile << tempstring << std::endl;
 	}

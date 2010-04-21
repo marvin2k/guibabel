@@ -19,7 +19,7 @@ int main( int argc, char* argv[])
 	QString devicename("/dev/ttyUSB0");
 	QString basename;
 	int newScale = -1;
-	int record_sample_number = 10240;
+	int record_sample_number = 16384;
 	int baudrate = 230400;
 	bool start_gui  = true;
 //-------------------

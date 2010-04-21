@@ -36,34 +36,30 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>20</y>
+      <y>10</y>
       <width>301</width>
-      <height>131</height>
+      <height>101</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout_3">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>connection and logging stuff:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>select serialport of microphone</string>
-         </property>
-        </widget>
+        <widget class="QComboBox" name="comboBox_avail_serialports"/>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout">
-         <item>
-          <widget class="QComboBox" name="comboBox_avail_serialports"/>
-         </item>
-         <item>
-          <widget class="QPushButton" name="button_refresh_serialports">
-           <property name="text">
-            <string>Refresh</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
+        <widget class="QPushButton" name="button_refresh_serialports">
+         <property name="text">
+          <string>Refresh</string>
+         </property>
+        </widget>
        </item>
       </layout>
      </item>
@@ -80,9 +76,9 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>200</y>
-      <width>771</width>
-      <height>361</height>
+      <y>230</y>
+      <width>781</width>
+      <height>371</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -94,7 +90,7 @@
        <item>
         <widget class="QLabel" name="label_pcmplot">
          <property name="text">
-          <string>actual dataplot</string>
+          <string>actual dataplot:</string>
          </property>
         </widget>
        </item>
@@ -273,18 +269,15 @@ of received signal</string>
        </property>
       </widget>
      </item>
-     <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_5"/>
-     </item>
     </layout>
    </widget>
    <widget class="QWidget" name="verticalLayoutWidget_2">
     <property name="geometry">
      <rect>
-      <x>400</x>
-      <y>20</y>
-      <width>381</width>
-      <height>131</height>
+      <x>380</x>
+      <y>10</y>
+      <width>411</width>
+      <height>101</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -342,9 +335,9 @@ data/$NAME.mat</string>
    <widget class="QWidget" name="layoutWidget2">
     <property name="geometry">
      <rect>
-      <x>350</x>
-      <y>570</y>
-      <width>431</width>
+      <x>410</x>
+      <y>610</y>
+      <width>381</width>
       <height>111</height>
      </rect>
     </property>
@@ -390,6 +383,12 @@ data/$NAME.mat</string>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="minimumSize">
+            <size>
+             <width>150</width>
+             <height>0</height>
+            </size>
+           </property>
            <property name="maximum">
             <number>48</number>
            </property>
@@ -413,10 +412,29 @@ data/$NAME.mat</string>
        <property name="enabled">
         <bool>false</bool>
        </property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="text">
         <string>send scale command</string>
        </property>
       </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_9">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
      </item>
     </layout>
    </widget>
@@ -424,7 +442,7 @@ data/$NAME.mat</string>
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>570</y>
+      <y>610</y>
       <width>321</width>
       <height>111</height>
      </rect>
@@ -457,7 +475,7 @@ samples to record</string>
             <number>0</number>
            </property>
            <property name="value">
-            <number>10240</number>
+            <number>1</number>
            </property>
           </widget>
          </item>
@@ -479,6 +497,16 @@ samples to record</string>
       </layout>
      </item>
      <item>
+      <widget class="QPushButton" name="pushButton_start_sequence_recorder">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>start sequence recorder</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="horizontalSpacer_3">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -491,24 +519,14 @@ samples to record</string>
        </property>
       </spacer>
      </item>
-     <item>
-      <widget class="QPushButton" name="pushButton_start_sequence_recorder">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="text">
-        <string>start sequence recorder</string>
-       </property>
-      </widget>
-     </item>
     </layout>
    </widget>
    <widget class="QWidget" name="horizontalLayoutWidget">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>160</y>
-      <width>771</width>
+      <y>170</y>
+      <width>781</width>
       <height>31</height>
      </rect>
     </property>
@@ -665,6 +683,45 @@ samples to record</string>
       </widget>
      </item>
     </layout>
+   </widget>
+   <widget class="Line" name="line">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>116</y>
+      <width>781</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="Line" name="line_3">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>200</y>
+      <width>781</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_14">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>140</y>
+      <width>291</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Some informations for logfile recording:</string>
+    </property>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">

@@ -80,7 +80,13 @@ void PCMdekoder::run(){
 			if (m_sample_down_counter > 0)  {
 				m_sample_down_counter--;
 				m_status.recordedPCMwords++;
-				drain->pushPCMword(m_lastValue);
+				if ( drain->pushPCMword(m_lastValue) < 0 ) {
+					VERBOSE_PRINTF("Error: can't write, will stop recording\n");
+					drain->close();
+					delete drain;
+					is_recording = false;
+					emit recordingFinished();
+				}
 			} else {
 				VERBOSE_PRINTF("guibabel finished recording\n");
 
@@ -95,5 +101,6 @@ void PCMdekoder::run(){
 }
 
 void PCMdekoder::send_command(char * data, int len){
+	VERBOSE_PRINTF("sending scale command %i\n",(int8_t)*data);
 	source->write(data, len);
 }

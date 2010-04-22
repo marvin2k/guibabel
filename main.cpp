@@ -18,6 +18,9 @@ int main( int argc, char* argv[])
 
 	QString devicename("/dev/ttyUSB0");
 	QString basename;
+	QString jointId("seven");
+	QString filterId("fir_massive");
+	int pwm = 0;
 	int newScale = -1;
 	int record_sample_number = 16384;
 	int baudrate = 230400;
@@ -26,10 +29,22 @@ int main( int argc, char* argv[])
 // parsing of cmdline-options
 //-------------------
     int c;
-    while ((c = getopt (argc, argv, "nvt:f:s:p:b:")) != -1) {
+    while ((c = getopt (argc, argv, "nvt:f:s:p:b:m:j:r:")) != -1) {
     /* getopt... see http://www.gnu.org/s/libc/manual/html_node/Example-of-Getopt.html#Example-of-Getopt */
         switch (c) {
-            case 'v':
+            case 'm':
+				pwm = atoi(optarg);
+                VERBOSE_PRINTF("-m pwm-value set to %i\n",pwm);
+                break;
+            case 'r':
+				filterId = optarg;
+                VERBOSE_PRINTF("-r filterId set to %s\n",filterId.toAscii().data());
+                break;
+            case 'j':
+				jointId = optarg;
+                VERBOSE_PRINTF("-j: jointId set to %s\n",jointId.toAscii().data());
+                break;
+			case 'v':
                 verbose_flag = 1;
                 printf("-v: Will be verbose\n");
                 break;
@@ -47,7 +62,7 @@ int main( int argc, char* argv[])
 					// serial device is a serial device, indeed
 					// see http://stackoverflow.com/questions/2530096/linux-how-to-find-all-serial-devices-ttys-ttyusb-without-opening-them
 					devicename.fromAscii(optarg);
-					VERBOSE_PRINTF("\t\tsucessfully opened serial port!\n");
+					VERBOSE_PRINTF("\t\tsucessfully opened serial port, given device is valid...\n");
 					} else {
 						printf("\t\tcould not access serial port, exiting\n");
 						::close(fd);
@@ -87,7 +102,10 @@ int main( int argc, char* argv[])
                 printf("\t-b \"baudrate\"\n");
                 printf("\t-t \"recordinglength in samples\"\n");
                 printf("\t-s \"send a special scaleCommand in the range of [0..24] via RS232 to filtersubsystem and exit\n");
-                exit(EXIT_FAILURE);
+                printf("\t-m \"set pwm-value of running motor\"\n");
+                printf("\t-j \"set jointId of used motor\"\n");
+                printf("\t-r \"set filterId of used motor\"\n");
+				exit(EXIT_FAILURE);
                 break;
             default:
                 exit(EXIT_FAILURE);
@@ -115,6 +133,19 @@ int main( int argc, char* argv[])
 		w.setRecordlength(record_sample_number);
 		w.show();
 		return a.exec();
+	} else if ( newScale != -1) {
+		PCMdekoder* myDekoder;
+		myDekoder = new PCMdekoder();
+		myDekoder->Set_baudrate(baudrate);
+		myDekoder->Set_portname(devicename);
+		myDekoder->Set_verbosity(verbose_flag);
+		myDekoder->init();
+		myDekoder->start();//now, serial port is beein read
+		int8_t cmd = (int8_t)newScale;
+		myDekoder->send_command((char*)&cmd, 1);
+		myDekoder->uninit();
+		delete myDekoder;
+		return EXIT_SUCCESS;
 	} else {
 		PCMdekoder* myDekoder;
 		myDekoder = new PCMdekoder();
@@ -126,7 +157,9 @@ int main( int argc, char* argv[])
 
 		myDekoder->drain = new sequenceRecorder();
 		myDekoder->drain->setVerbosity(verbose_flag);
-		myDekoder->drain->setpwmspeedtorque(-1, -1, -1);
+		myDekoder->drain->setpwmspeedtorque(pwm, -1, -1);
+		myDekoder->drain->setfilterId( filterId );
+		myDekoder->drain->setjointId( jointId );
 		if (!basename.isEmpty())
 			myDekoder->drain->setBasename(basename.toAscii().data());
 

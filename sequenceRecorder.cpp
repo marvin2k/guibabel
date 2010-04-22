@@ -11,14 +11,14 @@
 sequenceRecorder::sequenceRecorder() {
 	mVerboseFlag = 0;
 	isOpen = 0;
-	m_jointID = "default";
-	m_filterID = "default";
+	m_jointId = "default";
+	m_filterId = "default";
 }
 sequenceRecorder::sequenceRecorder(std::string basename) {
 	mVerboseFlag = 0;
 	isOpen = 0;
-	m_jointID = "default";
-	m_filterID = "default";
+	m_jointId = "default";
+	m_filterId = "default";
 	setBasename(basename);
 }
 
@@ -38,11 +38,11 @@ int sequenceRecorder::setBasename( ) {
 	return setBasename(basename);
 }
 
-void sequenceRecorder::setjointID( std::string id ){
-	m_jointID = id;
+void sequenceRecorder::setjointId( QString id ){
+	m_jointId = id.toAscii().data();
 }
-void sequenceRecorder::setfilterID( std::string id ){
-	m_filterID = id;
+void sequenceRecorder::setfilterId( QString id ){
+	m_filterId = id.toAscii().data();
 }
 
 int sequenceRecorder::setBasename( std::string basename ){
@@ -164,7 +164,7 @@ int sequenceRecorder::open( ){
 int sequenceRecorder::pushPCMword( int16_t word ) {
 	if (!isOpen) {
 		printf("fehler beim schreiben in sequencerekorder: keine dateien geöffnet\n");
-		return EXIT_FAILURE;
+		return -1;
 	}
 
 	gettimeofday(&time_now, NULL);
@@ -178,7 +178,7 @@ int sequenceRecorder::pushPCMword( int16_t word ) {
 
 	mRecordedElements++;
 
-	return EXIT_SUCCESS;
+	return 0;
 }
 
 int sequenceRecorder::appendVectorToOctaveFile( std::fstream *fd, std::string name, std::vector<int> *data){
@@ -224,8 +224,8 @@ int sequenceRecorder::close() {
 	sf_close( fd_wavfile );
 
 	// append jointID and filterID to logfile
-	appendStringToOctaveFile(&fd_matlab, "filterID", m_filterID );
-	appendStringToOctaveFile(&fd_matlab, "jointID", m_jointID );
+	appendStringToOctaveFile(&fd_matlab, "filterId", m_filterId.toAscii().data() );
+	appendStringToOctaveFile(&fd_matlab, "jointId", m_jointId.toAscii().data() );
 	appendVectorToOctaveFile(&fd_matlab, "motorData", &motorData);
 
 	// close matlabfile, write number of rows to header

@@ -179,8 +179,8 @@ void gui::trigger_sequence_recorder_start() {
 		delete myDekoder->drain;
 		return;
 	}
-	myDekoder->drain->setjointID( cbx_jointID->currentText().toAscii().data() );
-	myDekoder->drain->setfilterID( cbx_filterID->currentText().toAscii().data() );
+	myDekoder->drain->setjointId( cbx_jointID->currentText().toAscii().data() );
+	myDekoder->drain->setfilterId( cbx_filterID->currentText().toAscii().data() );
 	myDekoder->drain->setpwmspeedtorque( le_pwm->text().toInt(),
 										 le_speed->text().toInt(),
 										 le_torque->text().toInt());

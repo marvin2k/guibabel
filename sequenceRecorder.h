@@ -7,6 +7,7 @@
 #include <sys/time.h>					// hires usecs for timestamps
 #include <fstream>
 #include <vector>
+#include <QString>
 
 class sequenceRecorder
 {
@@ -24,16 +25,16 @@ class sequenceRecorder
 		int setBasename();
 		std::string getBasename();
 		int setBasename(std::string basename);
-		void setjointID( std::string id );
-		void setfilterID( std::string id );
+		void setjointId( QString id );
+		void setfilterId( QString id );
 		void setVerbosity(int flag);
 		void setpwmspeedtorque( int pwm, int speed, int torque );
 
 		int mRecordedElements;
 
 	private:
-		std::string m_jointID;
-		std::string m_filterID;
+		QString m_jointId;
+		QString m_filterId;
 		std::vector<int> motorData;
 
 		struct timeval time_start;

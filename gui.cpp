@@ -35,7 +35,7 @@ gui::gui(QMainWindow *parent) : QMainWindow(parent){
 	setWindowTitle(myTitle);
 
 	// prepare basename input
-	mDefaultBasename = "babel_%Y_%m_%d_%H_%M_%S";
+	mDefaultBasename = "./data/babel_%Y_%m_%d_%H_%M_%S";
 	connect(checkBox_basename, SIGNAL(stateChanged(int)), this, SLOT(stateChanged_checkbox_basename(int)));
 	setBasename(mDefaultBasename);
 

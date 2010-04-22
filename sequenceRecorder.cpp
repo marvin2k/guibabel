@@ -32,7 +32,7 @@ int sequenceRecorder::setBasename( ) {
 
 	// basic prefix for all sequence-files
 	char buffer[80];
-    strftime(buffer,80,"babel_%Y_%m_%d_%H_%M_%S",&timedata);
+    strftime(buffer,80,"./data/babel_%Y_%m_%d_%H_%M_%S",&timedata);
 	std::string basename( buffer );
 
 	return setBasename(basename);
@@ -125,7 +125,7 @@ int sequenceRecorder::open( ){
 
     VERBOSE_PRINTF("Opening sequence files with basename \"%s\"\n",mBasename.c_str());
 
-	matlabfilename = "data/"+mBasename+".mat";
+	matlabfilename = mBasename+".mat";
 	VERBOSE_PRINTF("Matlabfile: %s\n", matlabfilename.c_str());
 	fd_matlab.open(matlabfilename.c_str(), std::ios_base::in | std::ios_base::out | std::ios_base::trunc );
 
@@ -143,7 +143,7 @@ int sequenceRecorder::open( ){
 	wav_info.channels = 1;
 	wav_info.format = (SF_FORMAT_WAV | SF_FORMAT_PCM_16);
 
-	wavfilename = "wavs/"+mBasename+".wav";
+	wavfilename = mBasename+".wav";
 	VERBOSE_PRINTF("Wavfile: %s\n", wavfilename.c_str());
 	fd_wavfile = sf_open(wavfilename.c_str(), SFM_WRITE, &wav_info );
 

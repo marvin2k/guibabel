@@ -243,6 +243,7 @@ void gui::trigger_serialport(){
 			action_connect_disconnect_serialport->setText("disconnect serialport");
 			comboBox_avail_serialports->setDisabled(true);
 			button_refresh_serialports->setDisabled(true);
+			horizontalSlider_scalecommand->setEnabled(true);
 			cbx_jointID->setDisabled(true);
 			cbx_filterID->setDisabled(true);
 			checkBox_basename->setDisabled(true);
@@ -267,6 +268,7 @@ void gui::trigger_serialport(){
 		action_connect_disconnect_serialport->setText("connect serialport");
 		comboBox_avail_serialports->setEnabled(true);
 		button_refresh_serialports->setEnabled(true);
+		horizontalSlider_scalecommand->setDisabled(true);
 		cbx_jointID->setEnabled(true);
 		cbx_filterID->setEnabled(true);
 		checkBox_basename->setEnabled(true);

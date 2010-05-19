@@ -193,8 +193,12 @@ int serialport::read( char* buffer, size_t nr ) {
 
 int serialport::write( char* buffer, size_t nr ) {
 
-	return ::write(fd, buffer, nr);
+	if (!mIsOpen) {
+		VERBOSE_PRINTF("should not write, port not open. But i'm trying, lets see what write returns...\n");
+	}
 
+	// returning with returncode of write, because it sets errno appropriatlys
+	return ::write(fd, buffer, nr);
 }
 
 int serialport::flush( void ) {

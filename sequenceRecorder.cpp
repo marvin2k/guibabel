@@ -32,7 +32,7 @@ int sequenceRecorder::setBasename( ) {
 
 	// basic prefix for all sequence-files
 	char buffer[80];
-    strftime(buffer,80,"./data/babel_%Y_%m_%d_%H_%M_%S",&timedata);
+    strftime(buffer,80,"./data/guibabel_%Y-%m-%d_%H-%M-%S",&timedata);
 	std::string basename( buffer );
 
 	return setBasename(basename);
@@ -86,7 +86,10 @@ int sequenceRecorder::write_octave_header(std::fstream *fd){
 	date_now = time(NULL);
 	timedata = *(localtime(&date_now));
 
-	strftime(timestring,80,"%a %b %d %H:%M:%S %Y %Z",&timedata);
+// Format used in Octave-Headers:
+//	strftime(timestring,80,"%a %b %d %H:%M:%S %Y %Z",&timedata);
+// ISO 8601, used by Weka:
+	strftime(timestring,80,"%Y-%m-%d %H:%M:%S%z",&timedata);
 	if (gethostname(hostname,80)) {
 		printf("some problem accessing the hostname\n");
 		sprintf(hostname,"defaulthostname");

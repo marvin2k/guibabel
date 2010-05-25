@@ -89,7 +89,7 @@ int sequenceRecorder::write_octave_header(std::fstream *fd){
 // Format used in Octave-Headers:
 //	strftime(timestring,80,"%a %b %d %H:%M:%S %Y %Z",&timedata);
 // ISO 8601, used by Weka:
-	strftime(timestring,80,"%Y-%m-%d %H:%M:%S%z",&timedata);
+	strftime(timestring,80,"%Y-%m-%d_%H:%M:%S%z",&timedata);
 	if (gethostname(hostname,80)) {
 		printf("some problem accessing the hostname\n");
 		sprintf(hostname,"defaulthostname");
@@ -203,6 +203,19 @@ int sequenceRecorder::appendVectorToOctaveFile( std::fstream *fd, std::string na
 	return 1;
 }
 
+int sequenceRecorder::appendScalarToOctaveFile( std::fstream *fd, std::string name, int *data){
+	VERBOSE_PRINTF("adding scalar %s to octave logfile\n",name.c_str())
+	*fd << "# name: "<< name <<std::endl;
+
+	*fd << "# type: scalar"<<std::endl;
+
+	*fd << " " << &data;
+
+	*fd << std::endl;
+
+	return 1;
+}
+
 int sequenceRecorder::appendStringToOctaveFile( std::fstream *fd, std::string name, std::string text){
 	VERBOSE_PRINTF("adding string %s to octave logfile\n",name.c_str())
 	*fd << "# name: "<< name <<std::endl;
@@ -229,7 +242,9 @@ int sequenceRecorder::close() {
 	// append jointID and filterID to logfile
 	appendStringToOctaveFile(&fd_matlab, "filterId", m_filterId.toAscii().data() );
 	appendStringToOctaveFile(&fd_matlab, "jointId", m_jointId.toAscii().data() );
-	appendVectorToOctaveFile(&fd_matlab, "motorData", &motorData);
+	appendScalarToOctaveFile(&fd_matlab, "motorDataPWM", &motorData.at(0));
+	appendScalarToOctaveFile(&fd_matlab, "motorDataSpeed", &motorData.at(1));
+	appendScalarToOctaveFile(&fd_matlab, "motorDataTorque", &motorData.at(2));
 
 	// close matlabfile, write number of rows to header
 	std::fstream tempfile;

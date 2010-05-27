@@ -203,13 +203,13 @@ int sequenceRecorder::appendVectorToOctaveFile( std::fstream *fd, std::string na
 	return 1;
 }
 
-int sequenceRecorder::appendScalarToOctaveFile( std::fstream *fd, std::string name, int *data){
+int sequenceRecorder::appendScalarToOctaveFile( std::fstream *fd, std::string name, int data){
 	VERBOSE_PRINTF("adding scalar %s to octave logfile\n",name.c_str())
 	*fd << "# name: "<< name <<std::endl;
 
 	*fd << "# type: scalar"<<std::endl;
 
-	*fd << " " << &data;
+	*fd << " " << data;
 
 	*fd << std::endl;
 
@@ -242,9 +242,9 @@ int sequenceRecorder::close() {
 	// append jointID and filterID to logfile
 	appendStringToOctaveFile(&fd_matlab, "filterId", m_filterId.toAscii().data() );
 	appendStringToOctaveFile(&fd_matlab, "jointId", m_jointId.toAscii().data() );
-	appendScalarToOctaveFile(&fd_matlab, "motorDataPWM", &motorData.at(0));
-	appendScalarToOctaveFile(&fd_matlab, "motorDataSpeed", &motorData.at(1));
-	appendScalarToOctaveFile(&fd_matlab, "motorDataTorque", &motorData.at(2));
+	appendScalarToOctaveFile(&fd_matlab, "motorDataPWM", motorData.at(0));
+	appendScalarToOctaveFile(&fd_matlab, "motorDataSpeed", motorData.at(1));
+	appendScalarToOctaveFile(&fd_matlab, "motorDataTorque", motorData.at(2));
 
 	// close matlabfile, write number of rows to header
 	std::fstream tempfile;

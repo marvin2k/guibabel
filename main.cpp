@@ -153,7 +153,7 @@ int main( int argc, char* argv[])
 		myDekoder->Set_portname(devicename);
 		myDekoder->Set_verbosity(verbose_flag);
 		myDekoder->init();
-		myDekoder->start();//now, serial port is beein read
+		myDekoder->start();//now, serial port is beeing read
 
 		myDekoder->drain = new sequenceRecorder();
 		myDekoder->drain->setVerbosity(verbose_flag);

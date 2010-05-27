@@ -53,7 +53,7 @@ class sequenceRecorder
 		int write_octave_header(std::fstream *fd);
 		int appendStringToOctaveFile( std::fstream *fd, std::string type, std::string text );
 		int appendVectorToOctaveFile( std::fstream *fd, std::string type, std::vector<int> *data);
-		int appendScalarToOctaveFile( std::fstream *fd, std::string name, int *data);
+		int appendScalarToOctaveFile( std::fstream *fd, std::string name, int data);
 
 
 };

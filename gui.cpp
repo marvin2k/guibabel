@@ -62,9 +62,13 @@ gui::gui(QMainWindow *parent) : QMainWindow(parent){
 	cbx_jointID->addItem("other");
 
 	// prepare sequenceRecorder
-	connect(pushButton_start_sequence_recorder, SIGNAL(clicked()), this, SLOT(trigger_sequence_recorder_start()));
+	connect(pushButton_start_sequence_recorder, SIGNAL(clicked()), this, SLOT(trigger_sequence_recorder()));
 	connect(horizontalSlider_scalecommand, SIGNAL(sliderMoved(int)), this, SLOT(trigger_new_scale_command(int)));
 	connect(pushButton_send_scale_command, SIGNAL(clicked()), this, SLOT(trigger_button_scale_command()));
+
+	// prepare recording settings
+	connect(rB_dauer, SIGNAL(clicked()), this, SLOT(rB_dauer_handler()));
+	connect(rB_samples, SIGNAL(clicked()), this, SLOT(rB_samples_handler()));
 
 	VERBOSE_PRINTF("finished construction of GUI\n");
 }
@@ -132,6 +136,13 @@ void gui::setRecordlength(int newLength){
 	}
 }
 
+void gui::rB_dauer_handler(){
+	spinBox_record_length->setDisabled(true);
+}
+void gui::rB_samples_handler(){
+	spinBox_record_length->setEnabled(true);
+}
+
 void gui::trigger_button_scale_command(){
 	VERBOSE_PRINTF("button for scalecommand was pressed\n");
 	int val = lineEdit_scalecommand->text().toInt();
@@ -153,54 +164,76 @@ void gui::trigger_update_bitwidth(int bw) {
 	qwtPlot_pcm->setAxisScale( QwtPlot::yLeft, -pow(2,bw-1), pow(2,bw-1)-1, 0);
 }
 
-void gui::trigger_sequence_recorder_start() {
-	VERBOSE_PRINTF("starting sequence recorder\n");
+void gui::trigger_sequence_recorder() {
 
-	int record_length = spinBox_record_length->value();
+	if (pushButton_start_sequence_recorder->text() == "start sequence recorder") {
+		VERBOSE_PRINTF("starting sequence recorder\n");
+
+		int record_length = 0;
+
+		if (rB_samples->isChecked()) {
+			record_length = spinBox_record_length->value();
+		} else if (rB_dauer->isChecked()) {
+			record_length = -1;
+		} else {
+			VERBOSE_PRINTF("hier stimmt was nicht\n");
+			return;
+		}
 
 
-	if (lineEdit_datafile_basename->text() == "") {
-		printf("please provide a logfilebasename, can't record\n");
-		return;
-	}
+		if (lineEdit_datafile_basename->text() == "") {
+			printf("please provide a logfilebasename, can't record\n");
+			return;
+		}
 
-	if (lineEdit_datafile_basename->isEnabled()) {
-		std::string basename = lineEdit_datafile_basename->text().toAscii().data();
-		myDekoder->drain = new sequenceRecorder(basename);
+		if (lineEdit_datafile_basename->isEnabled()) {
+			std::string basename = lineEdit_datafile_basename->text().toAscii().data();
+			myDekoder->drain = new sequenceRecorder(basename);
+		} else {
+			myDekoder->drain = new sequenceRecorder();
+		}
+		VERBOSE_PRINTF("Basename for recording is %s\n",myDekoder->drain->getBasename().c_str());
+
+		myDekoder->drain->setVerbosity(mVerboseLevel);
+
+		if (!myDekoder->drain->open()){
+			printf("Error opening recorder, can't record\n");
+			delete myDekoder->drain;
+			return;
+		}
+		myDekoder->drain->setjointId( cbx_jointID->currentText().toAscii().data() );
+		myDekoder->drain->setfilterId( cbx_filterID->currentText().toAscii().data() );
+		myDekoder->drain->setpwmspeedtorque( le_pwm->text().toInt(),
+											le_speed->text().toInt(),
+											le_torque->text().toInt());
+
+		myDekoder->Set_sample_down_counter(record_length);
+
+		VERBOSE_PRINTF("Recording prepared, length is %i samples, Basename %s\n",record_length,myDekoder->drain->getBasename().c_str());
+
+		le_pwm->setDisabled(true);
+		le_speed->setDisabled(true);
+		le_torque->setDisabled(true);
+
+		pushButton_start_sequence_recorder->setText("stop sequence recorder");
+
+		myDekoder->start_recording();
+
+	} else if (pushButton_start_sequence_recorder->text() == "stop sequence recorder") {
+		VERBOSE_PRINTF("stopping sequence record due to user request\n");
+		pushButton_start_sequence_recorder->setText("start sequence recorder");
+
+		myDekoder->Set_sample_down_counter( 0 );
 	} else {
-		myDekoder->drain = new sequenceRecorder();
+		VERBOSE_PRINTF("something is wrong with text in push button\n");
 	}
-	VERBOSE_PRINTF("Basename for recording is %s\n",myDekoder->drain->getBasename().c_str());
-
-	myDekoder->drain->setVerbosity(mVerboseLevel);
-
-	if (!myDekoder->drain->open()){
-		printf("Error opening recorder, can't record\n");
-		delete myDekoder->drain;
-		return;
-	}
-	myDekoder->drain->setjointId( cbx_jointID->currentText().toAscii().data() );
-	myDekoder->drain->setfilterId( cbx_filterID->currentText().toAscii().data() );
-	myDekoder->drain->setpwmspeedtorque( le_pwm->text().toInt(),
-										 le_speed->text().toInt(),
-										 le_torque->text().toInt());
-
-	myDekoder->Set_sample_down_counter(record_length);
-
-	VERBOSE_PRINTF("Recording prepared, length is %i samples, Basename %s\n",record_length,myDekoder->drain->getBasename().c_str());
-
-	le_pwm->setDisabled(true);
-	le_speed->setDisabled(true);
-	le_torque->setDisabled(true);
-
-	pushButton_start_sequence_recorder->setDisabled(true);
-
-	myDekoder->start_recording();
 
 }
 
+
 void gui::sequence_recording_finished(){
-	pushButton_start_sequence_recorder->setEnabled(true);
+
+	pushButton_start_sequence_recorder->setText("start sequence recorder");
 
 	le_pwm->setEnabled(true);
 	le_speed->setEnabled(true);
@@ -257,6 +290,8 @@ void gui::trigger_serialport(){
 			pushButton_start_sequence_recorder->setEnabled(true);
 			pushButton_send_scale_command->setEnabled(true);
 			spinBox_bitwidth->setEnabled(true);
+			//just to be sure
+			pushButton_start_sequence_recorder->setText("start sequence recorder");
 		}
 
 	} else {

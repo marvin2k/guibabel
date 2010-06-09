@@ -51,10 +51,6 @@ void PCMdekoder::uninit(){
 
 bool PCMdekoder::start_recording(){
 // sequence recorder is prepared in gui.cpp
-	if (m_sample_down_counter <= 0)	{
-		VERBOSE_PRINTF("can record, please give number of samples to record\n");
-		return false;
-	}
 
 	if (is_recording){
 		VERBOSE_PRINTF("can record, already running\n");
@@ -63,7 +59,12 @@ bool PCMdekoder::start_recording(){
 
 	m_status.recordedPCMwords = 0;
 	is_recording = true;
-	VERBOSE_PRINTF("started recording of %i samples\n",m_sample_down_counter);
+
+	if (m_sample_down_counter>=0)
+		VERBOSE_PRINTF("started recording of %i samples\n",m_sample_down_counter);
+	if (m_sample_down_counter<0)
+		VERBOSE_PRINTF("started indefinetly recording\n");
+
 	return true;
 }
 
@@ -77,17 +78,19 @@ void PCMdekoder::run(){
 		m_status.validPCMwords = source->m_valid;
 
 		if (is_recording){
-			if (m_sample_down_counter > 0)  {
+			// only decrement counter, if it's greater zero
+			if (m_sample_down_counter > 0)
 				m_sample_down_counter--;
-				m_status.recordedPCMwords++;
-				if ( drain->pushPCMword(m_lastValue) < 0 ) {
-					VERBOSE_PRINTF("Error: can't write, will stop recording\n");
-					drain->close();
-					delete drain;
-					is_recording = false;
-					emit recordingFinished();
-				}
-			} else {
+			m_status.recordedPCMwords++;
+			if ( drain->pushPCMword(m_lastValue) < 0 ) {
+				VERBOSE_PRINTF("Error: can't write, will stop recording\n");
+				drain->close();
+				delete drain;
+				is_recording = false;
+				emit recordingFinished();
+			}
+			// only stop if equal to zero. doing this and the decrementing-if-greater above, we will record indefinetly if m_sample_downcaounter is negative
+			if (m_sample_down_counter == 0) {
 				VERBOSE_PRINTF("guibabel finished recording\n");
 
 				drain->close();

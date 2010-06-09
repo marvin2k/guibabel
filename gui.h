@@ -48,10 +48,12 @@ class gui : public QMainWindow, public Ui::MainWindow{
 		void trigger_serialport();
 		void stateChanged_checkbox_basename(int newstate);
 		void refresh_pcmplot();
-		void trigger_sequence_recorder_start();
+		void trigger_sequence_recorder();
 		void trigger_new_scale_command(int val);
 		void trigger_button_scale_command();
 		void trigger_update_bitwidth(int bw);
 		void sequence_recording_finished();
+		void rB_samples_handler();
+		void rB_dauer_handler();
 };
 #endif //GUI_H

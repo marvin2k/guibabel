@@ -53,7 +53,7 @@ int main( int argc, char* argv[])
 				VERBOSE_PRINTF("starting/showing gui disabled, cmd-line-only version\n");
 				break;
             case 'p':
-                VERBOSE_PRINTF("-p: Devicename serialport: %s !!!NOT SUPPORTED WITH GUI!!! trying to open...\n",devicename.toAscii().data());
+                VERBOSE_PRINTF("-p: Devicename given for serialport: %s !!!NOT SUPPORTED WITH GUI!!! trying to open...\n",optarg);
 				struct serial_struct serinfo;
 	            int fd;
 	            fd = ::open(optarg, O_RDWR | O_NONBLOCK );
@@ -61,8 +61,8 @@ int main( int argc, char* argv[])
 					if (ioctl (fd, TIOCSSERIAL, &serinfo)) {
 					// serial device is a serial device, indeed
 					// see http://stackoverflow.com/questions/2530096/linux-how-to-find-all-serial-devices-ttys-ttyusb-without-opening-them
-					devicename.fromAscii(optarg);
-					VERBOSE_PRINTF("\t\tsucessfully opened serial port, given device is valid...\n");
+					devicename = QString::fromAscii(optarg);
+					VERBOSE_PRINTF("\t\tsucessfully opened serial port %s, given device is valid...\n",devicename.toAscii().data());
 					} else {
 						printf("\t\tcould not access serial port, exiting\n");
 						::close(fd);

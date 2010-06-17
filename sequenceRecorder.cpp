@@ -209,9 +209,7 @@ int sequenceRecorder::appendScalarToOctaveFile( std::fstream *fd, std::string na
 
 	*fd << "# type: scalar"<<std::endl;
 
-	*fd << " " << data;
-
-	*fd << std::endl;
+	*fd << data << std::endl;
 
 	return 1;
 }

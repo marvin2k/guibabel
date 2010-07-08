@@ -4,6 +4,8 @@
 #include <linux/serial.h>
 #include <fcntl.h>
 
+#include <signal.h>
+
 #include <QDebug>
 
 #define VERBOSE_PRINTF(...) if (verbose_flag > 0) { \
@@ -12,8 +14,14 @@
                             }
 int verbose_flag = 1;
 
+void termination_handler (int signum);
+
+PCMdekoder* myDekoder = NULL;
+
 int main( int argc, char* argv[])
 {
+	signal (SIGINT, termination_handler);
+
 	QApplication a(argc, argv);
 
 	QString devicename("/dev/ttyUSB0");
@@ -134,11 +142,10 @@ int main( int argc, char* argv[])
 		w.show();
 		return a.exec();
 	} else if ( newScale != -1) {
-		PCMdekoder* myDekoder;
 		myDekoder = new PCMdekoder();
+		myDekoder->Set_verbosity(verbose_flag);
 		myDekoder->Set_baudrate(baudrate);
 		myDekoder->Set_portname(devicename);
-		myDekoder->Set_verbosity(verbose_flag);
 		myDekoder->init();
 		myDekoder->start();//now, serial port is beein read
 		int8_t cmd = (int8_t)newScale;
@@ -147,7 +154,6 @@ int main( int argc, char* argv[])
 		delete myDekoder;
 		return EXIT_SUCCESS;
 	} else {
-		PCMdekoder* myDekoder;
 		myDekoder = new PCMdekoder();
 		myDekoder->Set_baudrate(baudrate);
 		myDekoder->Set_portname(devicename);
@@ -177,4 +183,16 @@ int main( int argc, char* argv[])
 		delete myDekoder;
 		return EXIT_SUCCESS;
 	}
+}
+
+void termination_handler (int signum) {
+
+	VERBOSE_PRINTF("received signal %i, exiting\n",signum);
+
+	if (myDekoder) {
+		myDekoder->uninit();
+		delete myDekoder;
+	}
+
+	_exit(0);
 }

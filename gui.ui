@@ -683,7 +683,7 @@ of received signal</string>
         <bool>true</bool>
        </property>
        <property name="minimum">
-        <number>1</number>
+        <number>-1</number>
        </property>
        <property name="maximum">
         <number>1000000000</number>

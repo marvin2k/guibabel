@@ -128,12 +128,7 @@ void gui::setVerbosity(int newVerbosity){
 }
 
 void gui::setRecordlength(int newLength){
-	if (newLength <= 0) {
-		VERBOSE_PRINTF("negative or zero rec-time doesn't make sense\n");
-		return;
-	} else {
-		spinBox_record_length->setValue(newLength);
-	}
+	spinBox_record_length->setValue(newLength);
 }
 
 void gui::rB_dauer_handler(){

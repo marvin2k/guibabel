@@ -32,6 +32,9 @@ class sequenceRecorder
 
 		int mRecordedElements;
 
+		int isOpen;
+
+
 	private:
 		QString m_jointId;
 		QString m_filterId;
@@ -40,7 +43,6 @@ class sequenceRecorder
 		struct timeval time_start;
 		struct timeval time_now;
 
-		int isOpen;
 
 		std::string mBasename;
 		int mVerboseFlag;

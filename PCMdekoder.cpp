@@ -43,7 +43,7 @@ void PCMdekoder::uninit(){
 	while (this->isRunning()){
 		VERBOSE_PRINTF("Stopping serial thread, waiting for him to exit...\n");
 		stop_running = true;
-		usleep(1000);
+		sleep(1);
 	}
 	source->uninit();
 	delete source;
@@ -84,8 +84,6 @@ void PCMdekoder::run(){
 			m_status.recordedPCMwords++;
 			if ( drain->pushPCMword(m_lastValue) < 0 ) {
 				VERBOSE_PRINTF("Error: can't write, will stop recording\n");
-				drain->close();
-				delete drain;
 				is_recording = false;
 				emit recordingFinished();
 			}
@@ -93,13 +91,17 @@ void PCMdekoder::run(){
 			if (m_sample_down_counter == 0) {
 				VERBOSE_PRINTF("guibabel finished recording\n");
 
-				drain->close();
-				delete drain;
 				is_recording = false;
 				emit recordingFinished();
 			}
 		}
 	}
+
+	if (drain->isOpen) {
+				drain->close();
+				delete drain;
+	}
+
 	VERBOSE_PRINTF("serial worker thread was exited, and finished running\n");
 }
 

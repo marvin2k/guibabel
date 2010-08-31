@@ -1,0 +1,8 @@
+Year, Stuff to access PCM14S Data from serially connected MEMS microphone, like used by me...
+
+Usage:
+	git clone git://github.com/marvin2k/guibabel.git
+	cd guibabel.git
+	qmake-qt4
+	make
+	./guibabel --help

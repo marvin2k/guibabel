@@ -15,6 +15,8 @@ PCMdekoder::PCMdekoder() {
 	stop_running = false;
 	is_recording = false;
 
+	// drain (files to write to) will be allocated from gui, to ease filename handling...
+	drain = NULL;
 }
 
 PCMdekoder::~PCMdekoder() {
@@ -97,9 +99,11 @@ void PCMdekoder::run(){
 		}
 	}
 
-	if (drain->isOpen) {
+	if (drain != NULL) {
+		if (drain->isOpen) {
 				drain->close();
-				delete drain;
+		}
+		delete drain;
 	}
 
 	VERBOSE_PRINTF("serial worker thread was exited, and finished running\n");

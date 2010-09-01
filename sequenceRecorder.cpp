@@ -32,7 +32,7 @@ int sequenceRecorder::setBasename( ) {
 
 	// basic prefix for all sequence-files
 	char buffer[80];
-    strftime(buffer,80,"./data/guibabel_%Y-%m-%d_%H-%M-%S",&timedata);
+    strftime(buffer,80,"guibabel_%Y-%m-%d_%H-%M-%S",&timedata);
 	std::string basename( buffer );
 
 	return setBasename(basename);

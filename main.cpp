@@ -94,16 +94,19 @@ int main( int argc, char* argv[])
                 VERBOSE_PRINTF("-b: Baudrate of serialport set to %i Baud\n",baudrate);
                 break;
             case '?':
-                printf("usage  of babel:\n");
-                printf("\t-v \"boolean switch to be more verbose\"\n");
-                printf("\t-n \"boolean switch to disable gui\"\n");
-                printf("\t-f \"basename for logging/writing\"\n");
-                printf("\t-p \"serial port\"\n");
-                printf("\t-b \"baudrate\"\n");
-                printf("\t-t \"recordinglength in samples\"\n");
-                printf("\t-m \"set pwm-value of running motor\"\n");
-                printf("\t-j \"set jointId of used motor\"\n");
-                printf("\t-r \"set filterId of used motor\"\n");
+                printf("guibabel: Clientsoftware to access PCM14S data from MEMS Microphone inside a FPGA over serial port.\n");
+				printf("usage:\n");
+                printf("\t-v - Boolean switch to be more verbose, used for debugging\n");
+                printf("\t-n - Boolean switch to disable GUI, used to access commandline mode\n");
+                printf("\t-f - Basename for the files used for logging/writing. Appropriate ending will be applied\n");
+                printf("\t-p - Devicename of serial port to use, like /dev/ttyUSB0\n");
+                printf("\t-b - Baudrate to use. Default is 230400\n");
+                printf("\t-t - Length of Samples to record. Mainly used in CMD-line mode. Set to -1 to preset infinite recording in GUI\n");
+                printf("\t-m - Set PWM-value of running motor. Used to log value in *.mat for later access\n");
+                printf("\t-j - Set JointID of used motor. Used to log value in *.mat for later access\n");
+                printf("\t-r - Set FilterID of used motor. Used to log value in *.mat for later access\n");
+                printf("\n");
+                printf("Guibabel will save recorded data as PCM16S *.wav file and custom Octave compatible *.mat file, containing some more informations\n");
 				exit(EXIT_FAILURE);
                 break;
             default:

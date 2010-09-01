@@ -110,7 +110,7 @@ void PCMdekoder::run(){
 }
 
 void PCMdekoder::send_command(char * data, int len){
-	VERBOSE_PRINTF("sending scale command %i\n",(int8_t)*data);
+	VERBOSE_PRINTF("sending command %i\n",(int8_t)*data);
 	if ( source->write(data, len) != len)
 		perror("problem writing to seriel port\n");
 }

@@ -29,7 +29,6 @@ int main( int argc, char* argv[])
 	QString jointId("seven");
 	QString filterId("fir_massive");
 	int pwm = 0;
-	int newScale = -1;
 	int record_sample_number = 16384;
 	int baudrate = 230400;
 	bool start_gui  = true;
@@ -37,7 +36,7 @@ int main( int argc, char* argv[])
 // parsing of cmdline-options
 //-------------------
     int c;
-    while ((c = getopt (argc, argv, "nvt:f:s:p:b:m:j:r:")) != -1) {
+    while ((c = getopt (argc, argv, "nvt:f:p:b:m:j:r:")) != -1) {
     /* getopt... see http://www.gnu.org/s/libc/manual/html_node/Example-of-Getopt.html#Example-of-Getopt */
         switch (c) {
             case 'm':
@@ -82,13 +81,6 @@ int main( int argc, char* argv[])
 					exit(EXIT_FAILURE);
 				}
                 break;
-        	case 's':
-				newScale = atoi(optarg);
-                VERBOSE_PRINTF("-s: Send scale-command: %i\n",newScale);
-				if (newScale < 0 || newScale > 56) {
-					printf("Unsopported scale range, but won't exit -- unspoorted behaviour may occour\n");
-				}
-                break;
             case 'f':
 				basename = optarg;
                 VERBOSE_PRINTF("-f: Basename for Outputfiles: %s\n",basename.toAscii().data());
@@ -109,7 +101,6 @@ int main( int argc, char* argv[])
                 printf("\t-p \"serial port\"\n");
                 printf("\t-b \"baudrate\"\n");
                 printf("\t-t \"recordinglength in samples\"\n");
-                printf("\t-s \"send a special scaleCommand in the range of [0..24] via RS232 to filtersubsystem and exit\n");
                 printf("\t-m \"set pwm-value of running motor\"\n");
                 printf("\t-j \"set jointId of used motor\"\n");
                 printf("\t-r \"set filterId of used motor\"\n");
@@ -136,23 +127,9 @@ int main( int argc, char* argv[])
 		w.setVerbosity(verbose_flag);
 		if (!basename.isEmpty())
 			w.setBasename(basename);
-		if (newScale != -1)
-			w.setScaleCommand(newScale);
 		w.setRecordlength(record_sample_number);
 		w.show();
 		return a.exec();
-	} else if ( newScale != -1) {
-		myDekoder = new PCMdekoder();
-		myDekoder->Set_verbosity(verbose_flag);
-		myDekoder->Set_baudrate(baudrate);
-		myDekoder->Set_portname(devicename);
-		myDekoder->init();
-		myDekoder->start();//now, serial port is beein read
-		int8_t cmd = (int8_t)newScale;
-		myDekoder->send_command((char*)&cmd, 1);
-		myDekoder->uninit();
-		delete myDekoder;
-		return EXIT_SUCCESS;
 	} else {
 		myDekoder = new PCMdekoder();
 		myDekoder->Set_baudrate(baudrate);

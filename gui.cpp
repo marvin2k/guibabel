@@ -63,8 +63,6 @@ gui::gui(QMainWindow *parent) : QMainWindow(parent){
 
 	// prepare sequenceRecorder
 	connect(pushButton_start_sequence_recorder, SIGNAL(clicked()), this, SLOT(trigger_sequence_recorder()));
-	connect(horizontalSlider_scalecommand, SIGNAL(sliderMoved(int)), this, SLOT(trigger_new_scale_command(int)));
-	connect(pushButton_send_scale_command, SIGNAL(clicked()), this, SLOT(trigger_button_scale_command()));
 
 	// prepare recording settings
 	connect(rB_dauer, SIGNAL(clicked()), this, SLOT(rB_dauer_handler()));
@@ -109,20 +107,6 @@ void gui::setBaudrate(int newBaudrate) {
 	mBaudrate = newBaudrate;
 }
 
-// set all gui element to a new scale command
-void gui::setScaleCommand(int newScale){
-	if (newScale < horizontalSlider_scalecommand->minimum()) {
-		VERBOSE_PRINTF("new scale command not supported, too low\n");
-		return;
-	}
-	if (newScale > horizontalSlider_scalecommand->maximum()) {
-		VERBOSE_PRINTF("new scale command not supported, too high\n");
-		return;
-	}
-	lineEdit_scalecommand->setText(QString::number(newScale));
-	horizontalSlider_scalecommand->setSliderPosition(newScale);
-}
-
 void gui::setVerbosity(int newVerbosity){
 	mVerboseLevel = newVerbosity;
 }
@@ -136,22 +120,6 @@ void gui::rB_dauer_handler(){
 }
 void gui::rB_samples_handler(){
 	spinBox_record_length->setEnabled(true);
-}
-
-void gui::trigger_button_scale_command(){
-	VERBOSE_PRINTF("button for scalecommand was pressed\n");
-	int val = lineEdit_scalecommand->text().toInt();
-	horizontalSlider_scalecommand->setSliderPosition(val);
-	trigger_new_scale_command(val);
-}
-
-void gui::trigger_new_scale_command(int val){
-	VERBOSE_PRINTF("slider for scalecommand was moved, new value will be written\n");
-	lineEdit_scalecommand->setText(QString::number(val));
-
-	int8_t cmd = (int8_t)val;
-	VERBOSE_PRINTF("writing new scale command \"%i\"\n",cmd);
-	myDekoder->send_command((char*)&cmd, 1);
 }
 
 void gui::trigger_update_bitwidth(int bw) {
@@ -271,7 +239,6 @@ void gui::trigger_serialport(){
 			action_connect_disconnect_serialport->setText("disconnect serialport");
 			comboBox_avail_serialports->setDisabled(true);
 			button_refresh_serialports->setDisabled(true);
-			horizontalSlider_scalecommand->setEnabled(true);
 			cbx_jointID->setDisabled(true);
 			cbx_filterID->setDisabled(true);
 			checkBox_basename->setDisabled(true);
@@ -283,7 +250,6 @@ void gui::trigger_serialport(){
 			gettimeofday(&t_begin, NULL);
 
 			pushButton_start_sequence_recorder->setEnabled(true);
-			pushButton_send_scale_command->setEnabled(true);
 			spinBox_bitwidth->setEnabled(true);
 			//just to be sure
 			pushButton_start_sequence_recorder->setText("start sequence recorder");
@@ -298,7 +264,6 @@ void gui::trigger_serialport(){
 		action_connect_disconnect_serialport->setText("connect serialport");
 		comboBox_avail_serialports->setEnabled(true);
 		button_refresh_serialports->setEnabled(true);
-		horizontalSlider_scalecommand->setDisabled(true);
 		cbx_jointID->setEnabled(true);
 		cbx_filterID->setEnabled(true);
 		checkBox_basename->setEnabled(true);
@@ -309,7 +274,6 @@ void gui::trigger_serialport(){
 		isDrawing = false;
 
 		pushButton_start_sequence_recorder->setDisabled(true);
-		pushButton_send_scale_command->setDisabled(true);
 		spinBox_bitwidth->setDisabled(true);
 
 		lab_mean->setText("0");

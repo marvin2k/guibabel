@@ -20,7 +20,6 @@ class gui : public QMainWindow, public Ui::MainWindow{
 
 		void setBaudrate(int newBaudrate);
 		void setBasename(QString newBasename);
-		void setScaleCommand(int newScale);
 		void setVerbosity(int newVerbosity);
 		void setRecordlength(int newLength );
 
@@ -40,7 +39,6 @@ class gui : public QMainWindow, public Ui::MainWindow{
 		QString mDefaultBasename;
 		QString mCurrentBasename;
 		int mBaudrate;
-		int mScaleCommand;
 		int mRecordingtime;
 
 	private slots:
@@ -49,8 +47,6 @@ class gui : public QMainWindow, public Ui::MainWindow{
 		void stateChanged_checkbox_basename(int newstate);
 		void refresh_pcmplot();
 		void trigger_sequence_recorder();
-		void trigger_new_scale_command(int val);
-		void trigger_button_scale_command();
 		void trigger_update_bitwidth(int bw);
 		void sequence_recording_finished();
 		void rB_samples_handler();

@@ -1,7 +1,10 @@
 Year, Stuff to access PCM14S Data from serially connected MEMS microphone, like used by me...
 
-Usage:
+Uses libsndfile as a external dependency to save directly into Wave. 
+
+Usage in Ubuntu/Debian:
 	git clone git://github.com/marvin2k/guibabel.git
+	apt-get install libsndfile-dev
 	cd guibabel.git
 	qmake-qt4
 	make

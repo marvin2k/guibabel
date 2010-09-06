@@ -20,6 +20,6 @@ LIBS += -lqwt-qt4 -lsndfile
 #extra clean-target to get rid of resulting plotfiles
 #noch nciht so richtig ausgereift
 mytarget.target = logfilecleanclean
-mytarget.commands = rm -f {wavs,data}/*
+mytarget.commands = rm -f *.{wav,mat}
 mytarget.depends = clean
 QMAKE_EXTRA_TARGETS += mytarget

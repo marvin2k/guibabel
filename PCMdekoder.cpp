@@ -93,17 +93,17 @@ void PCMdekoder::run(){
 			if (m_sample_down_counter == 0) {
 				VERBOSE_PRINTF("guibabel finished recording\n");
 
+				if (drain != NULL) {
+					if (drain->isOpen) {
+							drain->close();
+					}
+					delete drain;
+				}
+
 				is_recording = false;
 				emit recordingFinished();
 			}
 		}
-	}
-
-	if (drain != NULL) {
-		if (drain->isOpen) {
-				drain->close();
-		}
-		delete drain;
 	}
 
 	VERBOSE_PRINTF("serial worker thread was exited, and finished running\n");

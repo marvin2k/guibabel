@@ -18,36 +18,34 @@
 
 gui::gui(QMainWindow *parent) : QMainWindow(parent){
 	setupUi(this);
+	
 	mVerboseLevel = 1;
 	VERBOSE_PRINTF("starting construction of GUI\n");
-	// setup quit-hook
-	connect(actionQuit,SIGNAL(triggered()), qApp, SLOT(quit()));
-
+	
+	QString PCM = QString("PCM");
+	
+	myLog = new DLogger(widget_logger, QString("guibabel"));
+	myLog->addColumn(&PCM);
+	
+	myPlot = new DPlotter(widget_plotter);
+	myPlot->addCurve(PCM,Qt::blue,true);
+	myPlot->change_keepTime(-1.5);
+	
 	// setup display of available com-ports and connectionssignals
 	connect(button_refresh_serialports, SIGNAL(clicked()), this, SLOT(refresh_serialports()));
 	refresh_serialports();
+	
 	connect(button_connect_disconnect_serialport, SIGNAL(clicked()), this, SLOT(trigger_serialport()));
-	connect(action_connect_disconnect_serialport, SIGNAL(triggered()), this, SLOT(trigger_serialport()));
+	
+	connect(myLog, SIGNAL(loggingStarted()), this, SLOT(started_recording()));
+	connect(myLog, SIGNAL(loggingStopped()), this, SLOT(stopped_recording()));
+
+	connect(&guiTimer, SIGNAL(timeout()), this, SLOT(updateGui()));
 
 	// setup some cosmetic values
 	QString myTitle;
 	QTextStream(&myTitle) << "guibabel, compiled since "<<__DATE__<<":"<<__TIME__;
 	setWindowTitle(myTitle);
-
-	// prepare basename input
-	mDefaultBasename = "guibabel_%Y-%m-%d_%H-%M-%S";
-	connect(checkBox_basename, SIGNAL(stateChanged(int)), this, SLOT(stateChanged_checkbox_basename(int)));
-	setBasename(mDefaultBasename);
-
-	// prepare plotting-section
-	trigger_update_bitwidth(14);// set bitwidth, there will
-	qwtPlot_pcm->setCanvasBackground(Qt::white);
-//	we won't add the curve here, this is done when we click the connect-button
-	isDrawing = false;
-	myTimer_pcmplot_refresh = new QTimer(this);
-	connect(myTimer_pcmplot_refresh, SIGNAL(timeout()), this, SLOT(refresh_pcmplot()));
-	myTimer_pcmplot_refresh->setInterval(20);
-	connect(spinBox_bitwidth, SIGNAL(valueChanged(int)), this, SLOT(trigger_update_bitwidth(int)));
 
 	// prepare properties section:
 	cbx_filterID->addItem("fir_massive");
@@ -61,45 +59,21 @@ gui::gui(QMainWindow *parent) : QMainWindow(parent){
 	cbx_jointID->addItem("YanYue");
 	cbx_jointID->addItem("other");
 
-	// prepare sequenceRecorder
-	connect(pushButton_start_sequence_recorder, SIGNAL(clicked()), this, SLOT(trigger_sequence_recorder()));
+	guiTimer.setInterval(1000);
 
-	// prepare recording settings
-	connect(rB_dauer, SIGNAL(clicked()), this, SLOT(rB_dauer_handler()));
-	connect(rB_samples, SIGNAL(clicked()), this, SLOT(rB_samples_handler()));
+	// just some dummy value...
+	PCMmeasurement.append(0);
 
 	VERBOSE_PRINTF("finished construction of GUI\n");
 }
 
 gui::~gui(){
-	VERBOSE_PRINTF("starting deletion of GUI\n");
-
-	if (isDrawing) {
-		delete pcmplot;
-
-		if (myDekoder->isRunning()) {
-			VERBOSE_PRINTF("Serial thread still running, try to kill him\n");
-			myDekoder->uninit();
-			delete myDekoder;
-		}
+	if (myDekoder->isRunning()) {
+		myDekoder->uninit();
+		delete myDekoder;
 	}
-
-
-	delete myTimer_pcmplot_refresh;
-
-	VERBOSE_PRINTF("finished deletion of GUI\n");
-}
-
-// handling of enabling/disabling the propriate boxes, according to the basename
-void gui::setBasename(QString newBasename){
-	if (newBasename == mDefaultBasename){
-		lineEdit_datafile_basename->setDisabled(true);
-		checkBox_basename->setCheckState(Qt::Checked);
-	} else {
-		lineEdit_datafile_basename->setEnabled(true);
-		checkBox_basename->setCheckState(Qt::Unchecked);
-	}
-	lineEdit_datafile_basename->setText(newBasename);
+	delete myLog;
+	delete myPlot;
 }
 
 // setting of baudrate in gui
@@ -107,113 +81,48 @@ void gui::setBaudrate(int newBaudrate) {
 	mBaudrate = newBaudrate;
 }
 
+void gui::setBasename(QString name) {
+	myLog->setLogfileBaseName(name);
+}
+
 void gui::setVerbosity(int newVerbosity){
 	mVerboseLevel = newVerbosity;
 }
 
-void gui::setRecordlength(int newLength){
-	spinBox_record_length->setValue(newLength);
+void gui::newData(const QString name, const double data){
+	myPlot->addPlotValue(name, data);
+	PCMmeasurement.replace(0,data);
+	myLog->AddLogValues(&PCMmeasurement);
 }
 
-void gui::rB_dauer_handler(){
-	spinBox_record_length->setDisabled(true);
-}
-void gui::rB_samples_handler(){
-	spinBox_record_length->setEnabled(true);
-}
-
-void gui::trigger_update_bitwidth(int bw) {
-
-	qwtPlot_pcm->setAxisScale( QwtPlot::yLeft, -pow(2,bw-1), pow(2,bw-1)-1, 0);
+void gui::started_connection(){
+	button_connect_disconnect_serialport->setText("disconnect serialport");
+	comboBox_avail_serialports->setDisabled(true);
+	button_refresh_serialports->setDisabled(true);
+	cbx_jointID->setDisabled(true);
+	cbx_filterID->setDisabled(true);
 }
 
-void gui::trigger_sequence_recorder() {
+void gui::stopped_connection(){
+	button_connect_disconnect_serialport->setText("connect serialport");
+	comboBox_avail_serialports->setEnabled(true);
+	button_refresh_serialports->setEnabled(true);
+	cbx_jointID->setEnabled(true);
+	cbx_filterID->setEnabled(true);
+}	
 
-	if (pushButton_start_sequence_recorder->text() == "start sequence recorder") {
-		VERBOSE_PRINTF("starting sequence recorder\n");
-
-		int record_length = 0;
-
-		if (rB_samples->isChecked()) {
-			record_length = spinBox_record_length->value();
-		} else if (rB_dauer->isChecked()) {
-			record_length = -1;
-		} else {
-			VERBOSE_PRINTF("hier stimmt was nicht\n");
-			return;
-		}
-
-
-		if (lineEdit_datafile_basename->text() == "") {
-			printf("please provide a logfilebasename, can't record\n");
-			return;
-		}
-
-		if (lineEdit_datafile_basename->isEnabled()) {
-			std::string basename = lineEdit_datafile_basename->text().toAscii().data();
-			myDekoder->drain = new sequenceRecorder(basename);
-		} else {
-			myDekoder->drain = new sequenceRecorder();
-		}
-		VERBOSE_PRINTF("Basename for recording is %s\n",myDekoder->drain->getBasename().c_str());
-
-		myDekoder->drain->setVerbosity(mVerboseLevel);
-
-		if (!myDekoder->drain->open()){
-			printf("Error opening recorder, can't record\n");
-			delete myDekoder->drain;
-			return;
-		}
-		myDekoder->drain->setjointId( cbx_jointID->currentText().toAscii().data() );
-		myDekoder->drain->setfilterId( cbx_filterID->currentText().toAscii().data() );
-		myDekoder->drain->setpwmspeedtorque( le_pwm->text().toInt(),
-											le_speed->text().toInt(),
-											le_torque->text().toInt());
-
-		myDekoder->Set_sample_down_counter(record_length);
-
-		VERBOSE_PRINTF("Recording prepared, length is %i samples, Basename %s\n",record_length,myDekoder->drain->getBasename().c_str());
-
-		le_pwm->setDisabled(true);
-		le_speed->setDisabled(true);
-		le_torque->setDisabled(true);
-
-		pushButton_start_sequence_recorder->setText("stop sequence recorder");
-
-		myDekoder->start_recording();
-
-	} else if (pushButton_start_sequence_recorder->text() == "stop sequence recorder") {
-		VERBOSE_PRINTF("stopping sequence record due to user request\n");
-		pushButton_start_sequence_recorder->setText("start sequence recorder");
-
-		myDekoder->Set_sample_down_counter( 0 );
-	} else {
-		VERBOSE_PRINTF("something is wrong with text in push button\n");
-	}
-
+void gui::started_recording(){
+	le_pwm->setDisabled(true);
+	le_speed->setDisabled(true);
+	le_torque->setDisabled(true);
 }
-
-
-void gui::sequence_recording_finished(){
-
-	pushButton_start_sequence_recorder->setText("start sequence recorder");
-
+void gui::stopped_recording(){
 	le_pwm->setEnabled(true);
 	le_speed->setEnabled(true);
 	le_torque->setEnabled(true);
-}
 
-void gui::stateChanged_checkbox_basename( int newstate ) {
-	VERBOSE_PRINTF("checkbox for disabling/enabling basename was pressed\n");
-	if ( newstate == Qt::Checked) {
-		lineEdit_datafile_basename->setText(mDefaultBasename);
-		lineEdit_datafile_basename->setDisabled(true);
-
-	} else {
-		lineEdit_datafile_basename->clear();
-		lineEdit_datafile_basename->setEnabled(true);
-	}
-
+	lab_valid->setText("---");
+	lab_invalid->setText("---");
 }
 
 void gui::trigger_serialport(){
@@ -226,82 +135,43 @@ void gui::trigger_serialport(){
 		myDekoder->Set_portname(comboBox_avail_serialports->currentText());
 		myDekoder->Set_verbosity(mVerboseLevel);
 		myDekoder->Set_baudrate(mBaudrate);
-		myDekoder->Set_recordingTime(-1);//run indefinetly
-
-		// recording finished signal
-		connect(myDekoder, SIGNAL(recordingFinished()), this, SLOT(sequence_recording_finished()));
 
 		if (myDekoder->init()){
+
+			connect(myDekoder, SIGNAL(newData(const QString, const double)), this, SLOT(newData(const QString, const double)));
+			connect(myDekoder, SIGNAL(started()), this, SLOT(started_connection()));
+			connect(myDekoder, SIGNAL(started()), &guiTimer, SLOT(start()));
+			connect(myDekoder, SIGNAL(finished()), this, SLOT(stopped_connection()));
+			connect(myDekoder, SIGNAL(finished()), &guiTimer, SLOT(stop()));
+
 			// success! aaaaand GO!
 			myDekoder->start();
 
-			button_connect_disconnect_serialport->setText("disconnect serialport");
-			action_connect_disconnect_serialport->setText("disconnect serialport");
-			comboBox_avail_serialports->setDisabled(true);
-			button_refresh_serialports->setDisabled(true);
-			cbx_jointID->setDisabled(true);
-			cbx_filterID->setDisabled(true);
-			checkBox_basename->setDisabled(true);
-			myTimer_pcmplot_refresh->start();
-
-			pcmplot = new CurvePlot(this,qwtPlot_pcm, 2000);
-			isDrawing = true;
-			pcmplot->addCurve("PCM S14", QwtPlot::yLeft, Qt::blue);
-			gettimeofday(&t_begin, NULL);
-
-			pushButton_start_sequence_recorder->setEnabled(true);
-			spinBox_bitwidth->setEnabled(true);
-			//just to be sure
-			pushButton_start_sequence_recorder->setText("start sequence recorder");
+		} else {
+			qDebug() << "gui: Something wrong while starting decoder";
+			delete myDekoder;
 		}
 
 	} else {
 
 		myDekoder->uninit();
+
+		disconnect(myDekoder, SIGNAL(newData(const QString, const double)), this, SLOT(newData(const QString, const double)));
+		disconnect(myDekoder, SIGNAL(started()), this, SLOT(started_connection()));
+		disconnect(myDekoder, SIGNAL(finished()), this, SLOT(stopped_connection()));
+		
 		delete myDekoder;
 
-		button_connect_disconnect_serialport->setText("connect serialport");
-		action_connect_disconnect_serialport->setText("connect serialport");
-		comboBox_avail_serialports->setEnabled(true);
-		button_refresh_serialports->setEnabled(true);
-		cbx_jointID->setEnabled(true);
-		cbx_filterID->setEnabled(true);
-		checkBox_basename->setEnabled(true);
-		myTimer_pcmplot_refresh->stop();
-
-		pcmplot->removeCurve("PCM S14");
-		delete pcmplot;//attention, exiting while plot is drawing will result is memory error
-		isDrawing = false;
-
-		pushButton_start_sequence_recorder->setDisabled(true);
-		spinBox_bitwidth->setDisabled(true);
-
-		lab_mean->setText("0");
-		lab_valid->setText("0");
-		lab_invalid->setText("0");
-		lab_rec->setText("0");
+		updateGui();
 	}
 }
 
-void gui::refresh_pcmplot(){
-	int value;
-	int time_ms;
+void gui::updateGui(){
 
-	value = myDekoder->Get_lastValue();
-	struct PCMdekoder::DekoderStatus_t status = myDekoder->Get_Status();
+	struct PCMdekoder::DekoderStatus_t *status = myDekoder->Get_Status();
 
-
-	gettimeofday(&t_sequence, NULL);
-
-	time_ms = (t_sequence.tv_sec - t_begin.tv_sec)*1000 + (t_sequence.tv_usec - t_begin.tv_usec)/1000;
-
-	double mean = pcmplot->addPointToCurve("PCM S14", time_ms, value);
-
-	QString text;
-	lab_mean->setText(text.setNum(mean));
-	lab_valid->setText(text.setNum(status.validPCMwords));
-	lab_invalid->setText(text.setNum(status.invalidPCMwords));
-	lab_rec->setText(text.setNum(status.recordedPCMwords));
+	lab_valid->setNum(status->validPCMwords);
+	lab_invalid->setNum(status->invalidPCMwords);
 }
 
 void gui::refresh_serialports(){
@@ -327,5 +197,5 @@ void gui::refresh_serialports(){
 			::close(fd);
 		}
 	}
-	delete portname;
+	delete[] portname;
 }

@@ -4,18 +4,20 @@
 
 TEMPLATE = app
 TARGET = 
-DEPENDPATH += .
-INCLUDEPATH += .
+DEPENDPATH += . /home/zenzes/olelo.wiki/DFKI/DLib/lib
+INCLUDEPATH += . /home/zenzes/olelo.wiki/DFKI/DLib/lib
 CONFIG += warn_on debug 
 
+QT += network
+
 # Input
-HEADERS += gui.h serialport.h CurvePlot.h sequenceRecorder.h PCMdekoder.h
+HEADERS += gui.h serialport.h PCMdekoder.h
 FORMS += gui.ui
-SOURCES += gui.cpp main.cpp serialport.cpp CurvePlot.cpp sequenceRecorder.cpp PCMdekoder.cpp
+SOURCES += gui.cpp main.cpp serialport.cpp PCMdekoder.cpp
 
 INCLUDEPATH += /usr/include/qwt-qt4 
 DEPENDPATH += /usr/include/qwt-qt4 
-LIBS += -lqwt-qt4 -lsndfile
+LIBS += -lqwt-qt4 -lsndfile -lDLib -L/home/zenzes/olelo.wiki/DFKI/DLib/lib
 
 #extra clean-target to get rid of resulting plotfiles
 #noch nciht so richtig ausgereift

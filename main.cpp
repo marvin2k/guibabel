@@ -130,38 +130,37 @@ int main( int argc, char* argv[])
 		w.setVerbosity(verbose_flag);
 		if (!basename.isEmpty())
 			w.setBasename(basename);
-		w.setRecordlength(record_sample_number);
 		w.show();
 		return a.exec();
 	} else {
-		myDekoder = new PCMdekoder();
-		myDekoder->Set_baudrate(baudrate);
-		myDekoder->Set_portname(devicename);
-		myDekoder->Set_verbosity(verbose_flag);
-		myDekoder->init();
-		myDekoder->start();//now, serial port is beeing read
-
-		myDekoder->drain = new sequenceRecorder();
-		myDekoder->drain->setVerbosity(verbose_flag);
-		myDekoder->drain->setpwmspeedtorque(pwm, -1, -1);
-		myDekoder->drain->setfilterId( filterId );
-		myDekoder->drain->setjointId( jointId );
-		if (!basename.isEmpty())
-			myDekoder->drain->setBasename(basename.toAscii().data());
-
-		if (!myDekoder->drain->open()){
-			printf("Error opening recorder, can't record\n");
-			delete myDekoder->drain;
-			return EXIT_FAILURE;
-		}
-		myDekoder->Set_sample_down_counter(record_sample_number);
-		myDekoder->start_recording();
-		while (myDekoder->is_recording) {
-			usleep(100);
-		}
-		myDekoder->uninit();
-		delete myDekoder;
-		return EXIT_SUCCESS;
+//		myDekoder = new PCMdekoder();
+//		myDekoder->Set_baudrate(baudrate);
+//		myDekoder->Set_portname(devicename);
+//		myDekoder->Set_verbosity(verbose_flag);
+//		myDekoder->init();
+//		myDekoder->start();//now, serial port is beeing read
+//
+//		myDekoder->drain = new sequenceRecorder();
+//		myDekoder->drain->setVerbosity(verbose_flag);
+//		myDekoder->drain->setpwmspeedtorque(pwm, -1, -1);
+//		myDekoder->drain->setfilterId( filterId );
+//		myDekoder->drain->setjointId( jointId );
+//		if (!basename.isEmpty())
+//			myDekoder->drain->setBasename(basename.toAscii().data());
+//
+//		if (!myDekoder->drain->open()){
+//			printf("Error opening recorder, can't record\n");
+//			delete myDekoder->drain;
+//			return EXIT_FAILURE;
+//		}
+//		myDekoder->Set_sample_down_counter(record_sample_number);
+//		myDekoder->start_recording();
+//		while (myDekoder->is_recording) {
+//			usleep(100);
+//		}
+//		myDekoder->uninit();
+//		delete myDekoder;
+//		return EXIT_SUCCESS;
 	}
 }
 

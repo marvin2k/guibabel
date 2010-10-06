@@ -8,6 +8,7 @@
 #include <QTimer>
 #include "DLogger.h"
 #include "DPlotter.h"
+#include "Dfft.h"
 
 class gui : public QMainWindow, public Ui::MainWindow{
 	Q_OBJECT
@@ -29,6 +30,7 @@ class gui : public QMainWindow, public Ui::MainWindow{
 		PCMdekoder *myDekoder;
 		DLogger *myLog;
 		DPlotter *myPlot;
+		Dfft *myFFT;
 
 		QTimer guiTimer;
 

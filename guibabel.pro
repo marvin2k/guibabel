@@ -17,7 +17,7 @@ SOURCES += gui.cpp main.cpp serialport.cpp PCMdekoder.cpp
 
 INCLUDEPATH += /usr/include/qwt-qt4 
 DEPENDPATH += /usr/include/qwt-qt4 
-LIBS += -lqwt-qt4 -lsndfile -lDLib -L/home/zenzes/olelo.wiki/DFKI/DLib/lib
+LIBS += -lqwt-qt4 -lsndfile -lDLib -L/home/zenzes/olelo.wiki/DFKI/DLib/lib -lfftw3 -lm
 
 #extra clean-target to get rid of resulting plotfiles
 #noch nciht so richtig ausgereift

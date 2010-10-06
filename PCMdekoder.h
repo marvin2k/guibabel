@@ -9,7 +9,6 @@
 #include <QString>
 
 #include "serialport.h"
-#include "sequenceRecorder.h"
 
 class PCMdekoder : public QThread
 {

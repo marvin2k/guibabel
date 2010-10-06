@@ -23,13 +23,17 @@ gui::gui(QMainWindow *parent) : QMainWindow(parent){
 	VERBOSE_PRINTF("starting construction of GUI\n");
 	
 	QString PCM = QString("PCM");
-	
-	myLog = new DLogger(widget_logger, QString("guibabel"));
+
+	myLog = new DLogger(groupBox_logger, QString("guibabel"));
 	myLog->addColumn(&PCM);
+		
+	myFFT = new Dfft(groupBox_fft);
+	myFFT->setSampleTime(9033);
+	myFFT->setDimension(16384);
 	
-	myPlot = new DPlotter(widget_plotter);
+	myPlot = new DPlotter(groupBox_plotter);
 	myPlot->addCurve(PCM,Qt::blue,true);
-	myPlot->change_keepTime(-1.5);
+	myPlot->change_keepTime(2);
 	
 	// setup display of available com-ports and connectionssignals
 	connect(button_refresh_serialports, SIGNAL(clicked()), this, SLOT(refresh_serialports()));
@@ -47,19 +51,9 @@ gui::gui(QMainWindow *parent) : QMainWindow(parent){
 	QTextStream(&myTitle) << "guibabel, compiled since "<<__DATE__<<":"<<__TIME__;
 	setWindowTitle(myTitle);
 
-	// prepare properties section:
-	cbx_filterID->addItem("fir_massive");
-	cbx_filterID->addItem("fir_three_staged");
-	cbx_filterID->addItem("laufsumme_filter2");
-	cbx_filterID->addItem("cic_compensated");
-	cbx_filterID->addItem("cic_pure");
-	cbx_filterID->addItem("other");
-
-	cbx_jointID->addItem("seven");
-	cbx_jointID->addItem("YanYue");
-	cbx_jointID->addItem("other");
-
 	guiTimer.setInterval(1000);
+
+	myDekoder = NULL;
 
 	// just some dummy value...
 	PCMmeasurement.append(0);
@@ -68,12 +62,14 @@ gui::gui(QMainWindow *parent) : QMainWindow(parent){
 }
 
 gui::~gui(){
-	if (myDekoder->isRunning()) {
+	if (myDekoder && myDekoder->isRunning()) {
 		myDekoder->uninit();
-		delete myDekoder;
 	}
+	if (myDekoder)
+		delete myDekoder;
 	delete myLog;
 	delete myPlot;
+	delete myFFT;
 }
 
 // setting of baudrate in gui
@@ -92,35 +88,29 @@ void gui::setVerbosity(int newVerbosity){
 void gui::newData(const QString name, const double data){
 	myPlot->addPlotValue(name, data);
 	PCMmeasurement.replace(0,data);
-	myLog->AddLogValues(&PCMmeasurement);
+	myLog->addLogValues(&PCMmeasurement);
+	myFFT->addLogValue(data);
 }
 
 void gui::started_connection(){
 	button_connect_disconnect_serialport->setText("disconnect serialport");
 	comboBox_avail_serialports->setDisabled(true);
 	button_refresh_serialports->setDisabled(true);
-	cbx_jointID->setDisabled(true);
-	cbx_filterID->setDisabled(true);
+
 }
 
 void gui::stopped_connection(){
 	button_connect_disconnect_serialport->setText("connect serialport");
 	comboBox_avail_serialports->setEnabled(true);
 	button_refresh_serialports->setEnabled(true);
-	cbx_jointID->setEnabled(true);
-	cbx_filterID->setEnabled(true);
+
 }	
 
 void gui::started_recording(){
-	le_pwm->setDisabled(true);
-	le_speed->setDisabled(true);
-	le_torque->setDisabled(true);
+	lab_valid->setText("0");
+	lab_invalid->setText("0");
 }
 void gui::stopped_recording(){
-	le_pwm->setEnabled(true);
-	le_speed->setEnabled(true);
-	le_torque->setEnabled(true);
-
 	lab_valid->setText("---");
 	lab_invalid->setText("---");
 }
@@ -161,6 +151,7 @@ void gui::trigger_serialport(){
 		disconnect(myDekoder, SIGNAL(finished()), this, SLOT(stopped_connection()));
 		
 		delete myDekoder;
+		myDekoder = NULL;
 
 		updateGui();
 	}
@@ -168,10 +159,12 @@ void gui::trigger_serialport(){
 
 void gui::updateGui(){
 
-	struct PCMdekoder::DekoderStatus_t *status = myDekoder->Get_Status();
+	if (myDekoder){
+		struct PCMdekoder::DekoderStatus_t *status = myDekoder->Get_Status();
 
-	lab_valid->setNum(status->validPCMwords);
-	lab_invalid->setNum(status->invalidPCMwords);
+		lab_valid->setNum(status->validPCMwords);
+		lab_invalid->setNum(status->invalidPCMwords);
+	}
 }
 
 void gui::refresh_serialports(){

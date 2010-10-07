@@ -26,14 +26,17 @@ gui::gui(QMainWindow *parent) : QMainWindow(parent){
 
 	myLog = new DLogger(groupBox_logger, QString("guibabel"));
 	myLog->addColumn(&PCM);
+	myLog->setDisabled(true);
 		
 	myFFT = new Dfft(groupBox_fft);
 	myFFT->setSampleTime(9033);
 	myFFT->setDimension(16384);
+	myFFT->setDisabled(true);
 	
 	myPlot = new DPlotter(groupBox_plotter);
 	myPlot->addCurve(PCM,Qt::blue,true);
 	myPlot->change_keepTime(2);
+	myPlot->setDisabled(true);
 	
 	// setup display of available com-ports and connectionssignals
 	connect(button_refresh_serialports, SIGNAL(clicked()), this, SLOT(refresh_serialports()));
@@ -96,14 +99,18 @@ void gui::started_connection(){
 	button_connect_disconnect_serialport->setText("disconnect serialport");
 	comboBox_avail_serialports->setDisabled(true);
 	button_refresh_serialports->setDisabled(true);
-
+	myLog->setEnabled(true);
+	myPlot->setEnabled(true);
+	myFFT->setEnabled(true);
 }
 
 void gui::stopped_connection(){
 	button_connect_disconnect_serialport->setText("connect serialport");
 	comboBox_avail_serialports->setEnabled(true);
 	button_refresh_serialports->setEnabled(true);
-
+	myLog->setDisabled(true);
+	myPlot->setDisabled(true);
+	myFFT->setDisabled(true);
 }	
 
 void gui::started_recording(){

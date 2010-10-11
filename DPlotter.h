@@ -83,6 +83,8 @@ class DPlotter : public QGroupBox, private Ui::GroupBox_DPlotter {
 
 		QHash<QString,curve_t*> allCurves;
 		
+		bool m_isRunning;
+		
 	private slots:
 		void selectCurve(QString name);
 		void selectColor();
@@ -92,6 +94,7 @@ class DPlotter : public QGroupBox, private Ui::GroupBox_DPlotter {
 		void handle_manualPlotScale(double value);
 		void handle_curveOffset(double offset);
 		void handle_curveScale(double scale);
+		void handle_runStop();
 };
 
 #endif // DPLOTTER_H

@@ -24,12 +24,20 @@
 			<Add library="QtGui" />
 			<Add directory="/usr/lib" />
 		</Linker>
-		<Unit filename="CurvePlot.cpp">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="CurvePlot.h">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
+		<Unit filename="DCsvVault.cpp" />
+		<Unit filename="DCsvVault.h" />
+		<Unit filename="DLogger.cpp" />
+		<Unit filename="DLogger.h" />
+		<Unit filename="DOctaveVault.cpp" />
+		<Unit filename="DOctaveVault.h" />
+		<Unit filename="DPlotter.cpp" />
+		<Unit filename="DPlotter.h" />
+		<Unit filename="DVault.cpp" />
+		<Unit filename="DVault.h" />
+		<Unit filename="DWavVault.cpp" />
+		<Unit filename="DWavVault.h" />
+		<Unit filename="Dfft.cpp" />
+		<Unit filename="Dfft.h" />
 		<Unit filename="PCMdekoder.cpp">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
@@ -49,18 +57,13 @@
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="main.cpp" />
-		<Unit filename="sequenceRecorder.cpp">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="sequenceRecorder.h">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
 		<Unit filename="serialport.cpp">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="serialport.h">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
+		<Unit filename="ui_gui.h" />
 		<Extensions>
 			<envvars />
 			<code_completion />

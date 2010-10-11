@@ -24,11 +24,9 @@ class PCMdekoder : public QThread
 
 		int Get_lastValue() { return m_lastValue; }
 		QString Get_portname() { return m_portname; }
-		int Get_verbosity() {return m_verboselevel; }
 		int Get_baudrate() {return m_baudrate; }
 
 		void Set_portname(QString name) { m_portname = name; }
-		void Set_verbosity(int val) { m_verboselevel = val; }
 		void Set_baudrate(int val) { m_baudrate = val; }
 
 		struct DekoderStatus_t {
@@ -53,7 +51,6 @@ class PCMdekoder : public QThread
 		DekoderStatus_t m_status;
 
 		int m_lastValue;
-		int m_verboselevel;
 		int m_baudrate;
 
 };

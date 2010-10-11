@@ -47,6 +47,9 @@ DPlotter::DPlotter(QGroupBox *parent) : QGroupBox(parent) {
 	connect(doubleSpinBox_curveScale, SIGNAL(valueChanged(double)), this, SLOT(handle_curveScale(double)));
 	connect(pushButton_clearPlot, SIGNAL(clicked()), this, SLOT(clearCurves()));
 	connect(pushButton_mark, SIGNAL(clicked()), this, SLOT(setMarker()));
+	connect(toolButton_runStop, SIGNAL(clicked()), this, SLOT(handle_runStop()));
+
+	m_isRunning = true;
 }
 
 DPlotter::~DPlotter() {
@@ -116,7 +119,8 @@ void DPlotter::removeCurve( const QString name ){
 }
 
 void DPlotter::addPlotValue(const QString name, double val){
-	allCurves.value(name)->dataVault->slurp(val);
+	if (m_isRunning)
+		allCurves.value(name)->dataVault->slurp(val);
 }
 
 // will also delete the marker curves...
@@ -226,6 +230,23 @@ void DPlotter::setCurveVisible(const QString name, const bool vis){
 	
 	if (name == comboBox_curveNames->currentText())//???
 		checkBox_showCurve->setChecked(true);
+}
+
+void DPlotter::handle_runStop()
+{
+	if (m_isRunning)
+	{
+		qDebug() << "DPlotter: halting plot";
+		toolButton_runStop->setText("run");
+		guiTimer.stop();
+		m_isRunning = false;
+	} else 
+	{
+		qDebug() << "DPlotter: restarting plot";
+		toolButton_runStop->setText("stop");
+		guiTimer.start();
+		m_isRunning = true;
+	}
 }
 
 void DPlotter::change_keepTime(const double keepTime_s){

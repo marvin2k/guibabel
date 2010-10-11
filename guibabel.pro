@@ -3,21 +3,21 @@
 ######################################################################
 
 TEMPLATE = app
-TARGET = 
-DEPENDPATH += . /home/zenzes/olelo.wiki/DFKI/DLib/lib
-INCLUDEPATH += . /home/zenzes/olelo.wiki/DFKI/DLib/lib
+TARGET = guibabel
+DEPENDPATH += 
+INCLUDEPATH +=
 CONFIG += warn_on debug 
 
 QT += network
 
 # Input
-HEADERS += gui.h serialport.h PCMdekoder.h
-FORMS += gui.ui
-SOURCES += gui.cpp main.cpp serialport.cpp PCMdekoder.cpp
+HEADERS += gui.h serialport.h PCMdekoder.h DCsvVault.h  Dfft.h  DLogger.h  DOctaveVault.h  DPlotter.h  DVault.h DWavVault.h 
+FORMS += gui.ui Dfft.ui  DLogger.ui  DPlotter.ui
+SOURCES += gui.cpp main.cpp serialport.cpp PCMdekoder.cpp DCsvVault.cpp  Dfft.cpp  DLogger.cpp  DOctaveVault.cpp  DPlotter.cpp  DVault.cpp DWavVault.cpp
 
 INCLUDEPATH += /usr/include/qwt-qt4 
 DEPENDPATH += /usr/include/qwt-qt4 
-LIBS += -lqwt-qt4 -lsndfile -lDLib -L/home/zenzes/olelo.wiki/DFKI/DLib/lib -lfftw3 -lm
+LIBS += -lqwt-qt4 -lsndfile -lfftw3 -lm
 
 #extra clean-target to get rid of resulting plotfiles
 #noch nciht so richtig ausgereift

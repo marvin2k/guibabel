@@ -646,6 +646,13 @@
          </property>
         </spacer>
        </item>
+       <item>
+        <widget class="QToolButton" name="toolButton_runStop">
+         <property name="text">
+          <string>stop</string>
+         </property>
+        </widget>
+       </item>
       </layout>
      </item>
      <item row="2" column="0">

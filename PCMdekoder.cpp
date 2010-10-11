@@ -1,11 +1,5 @@
 #include "PCMdekoder.h"
 
-
-#define VERBOSE_PRINTF(...) if (m_verboselevel > 0) { \
-                                printf("%s:%i: ",__FILE__,__LINE__);\
-                                printf(__VA_ARGS__);\
-                            }
-
 PCMdekoder::PCMdekoder() {
 
 	Set_portname("/dev/ttyUSB0");
@@ -24,7 +18,7 @@ bool PCMdekoder::init(){
 	// prepare serialport
 	source = new serialport();
 
-	if (source->init(m_portname.toAscii().data(), m_baudrate, m_verboselevel)) {
+	if (source->init(m_portname.toAscii().data(), m_baudrate, 1)) {
 		return true;
 	} else {
 		source->uninit();
@@ -35,10 +29,10 @@ bool PCMdekoder::init(){
 
 void PCMdekoder::uninit(){
 	stop_running = true;
+	usleep(10000);
 	while (this->isRunning()){
-		VERBOSE_PRINTF("Stopping serial thread, waiting for him to exit...\n");
-		stop_running = true;
-		usleep(100);
+		qDebug() << "PCMdekoder: Stopping serial thread...";
+		usleep(10000);
 	}
 	source->uninit();
 	delete source;
@@ -46,7 +40,7 @@ void PCMdekoder::uninit(){
 
 void PCMdekoder::run(){
 	QString PCM = QString("PCM");
-	VERBOSE_PRINTF("Dekoder-Thread called on %s with thread ID %i\n",m_portname.toAscii().data(),(int)currentThreadId());
+	qDebug() << "PCMdekoder: Dekoder-Thread called on"<<m_portname<<"with thread ID"<<currentThreadId();
 	//exec();//normal in qthreads to enter qt-command queue
 
 	while ( !stop_running ) {

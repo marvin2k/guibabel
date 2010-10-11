@@ -130,7 +130,6 @@ void gui::trigger_serialport(){
 		myDekoder = new PCMdekoder();
 
 		myDekoder->Set_portname(comboBox_avail_serialports->currentText());
-		myDekoder->Set_verbosity(mVerboseLevel);
 		myDekoder->Set_baudrate(mBaudrate);
 
 		if (myDekoder->init()){

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1300</width>
-    <height>848</height>
+    <width>1047</width>
+    <height>748</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -32,29 +32,57 @@
    <string>guibabel</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QWidget" name="verticalLayoutWidget">
+   <widget class="QGroupBox" name="groupBox_logger">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>170</y>
+      <width>220</width>
+      <height>280</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>220</width>
+      <height>280</height>
+     </size>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_fft">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>400</y>
+      <width>815</width>
+      <height>300</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_plotter">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>0</y>
+      <width>815</width>
+      <height>400</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="">
     <property name="geometry">
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>331</width>
-      <height>101</height>
+      <width>220</width>
+      <height>171</height>
      </rect>
     </property>
-    <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="title">
+     <string>Serialport</string>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout_2">
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout">
-       <item>
-        <widget class="QComboBox" name="comboBox_avail_serialports"/>
-       </item>
-       <item>
-        <widget class="QPushButton" name="button_refresh_serialports">
-         <property name="text">
-          <string>Refresh</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
+      <widget class="QComboBox" name="comboBox_avail_serialports"/>
      </item>
      <item>
       <widget class="QPushButton" name="button_connect_disconnect_serialport">
@@ -64,11 +92,18 @@
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="button_refresh_serialports">
+       <property name="text">
+        <string>Refresh</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>
         <widget class="QLabel" name="label">
          <property name="text">
-          <string>Packets valid:</string>
+          <string>valid:</string>
          </property>
         </widget>
        </item>
@@ -85,19 +120,10 @@
          </property>
         </widget>
        </item>
-       <item>
-        <spacer name="horizontalSpacer">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
         <widget class="QLabel" name="label_3">
          <property name="text">
@@ -109,7 +135,7 @@
         <widget class="QLabel" name="lab_invalid">
          <property name="minimumSize">
           <size>
-           <width>60</width>
+           <width>100</width>
            <height>0</height>
           </size>
          </property>
@@ -122,49 +148,13 @@
      </item>
     </layout>
    </widget>
-   <widget class="QGroupBox" name="groupBox_logger">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>120</y>
-      <width>485</width>
-      <height>170</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>485</width>
-      <height>170</height>
-     </size>
-    </property>
-   </widget>
-   <widget class="QGroupBox" name="groupBox_fft">
-    <property name="geometry">
-     <rect>
-      <x>480</x>
-      <y>400</y>
-      <width>815</width>
-      <height>400</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QGroupBox" name="groupBox_plotter">
-    <property name="geometry">
-     <rect>
-      <x>480</x>
-      <y>0</y>
-      <width>815</width>
-      <height>400</height>
-     </rect>
-    </property>
-   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1300</width>
+     <width>1047</width>
      <height>25</height>
     </rect>
    </property>

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>832</width>
-    <height>1005</height>
+    <width>1300</width>
+    <height>848</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -24,7 +24,7 @@
   </property>
   <property name="maximumSize">
    <size>
-    <width>1200</width>
+    <width>1300</width>
     <height>1200</height>
    </size>
   </property>
@@ -36,7 +36,7 @@
     <property name="geometry">
      <rect>
       <x>0</x>
-      <y>10</y>
+      <y>0</y>
       <width>331</width>
       <height>101</height>
      </rect>
@@ -125,8 +125,8 @@
    <widget class="QGroupBox" name="groupBox_logger">
     <property name="geometry">
      <rect>
-      <x>340</x>
-      <y>0</y>
+      <x>0</x>
+      <y>120</y>
       <width>485</width>
       <height>170</height>
      </rect>
@@ -138,23 +138,21 @@
      </size>
     </property>
    </widget>
-   <widget class="QGroupBox" name="groupBox_plotter">
+   <widget class="QGroupBox" name="groupBox_fft">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>160</y>
+      <x>480</x>
+      <y>400</y>
       <width>815</width>
       <height>400</height>
      </rect>
     </property>
-    <zorder>button_refresh_serialports</zorder>
-    <zorder>comboBox_avail_serialports</zorder>
    </widget>
-   <widget class="QGroupBox" name="groupBox_fft">
+   <widget class="QGroupBox" name="groupBox_plotter">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>550</y>
+      <x>480</x>
+      <y>0</y>
       <width>815</width>
       <height>400</height>
      </rect>
@@ -166,7 +164,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>832</width>
+     <width>1300</width>
      <height>25</height>
     </rect>
    </property>

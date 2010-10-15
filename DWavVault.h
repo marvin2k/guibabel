@@ -31,8 +31,8 @@ class DWavVault
 
 		void AddLogValue(const double value);
 
-		QString filename;
-		SNDFILE* logFile;
+		QString m_filename;
+		SNDFILE* wav;
 
 		int m_nrOfRows;
 };

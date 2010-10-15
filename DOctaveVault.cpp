@@ -100,18 +100,20 @@ void DOctaveVault::writeHeader() {
 	logStream << "##" << endl;
 	logStream << "## octave:1> load('" << logFile.fileName() << "');" << endl;
 	logStream << "## octave:2> starttime" << endl;
-	logStream << "## octave:3> plot(logdata(:,1),logdata(:,2),';data;');" << endl;
+	logStream << "## octave:3> plot(sequenceData(:,1),sequenceData(:,2),';data;');" << endl;
 	logStream << "## octave:4> xlabel('t in ms');ylabel('data');" << endl;
 
 	logStream << endl; // octave-parser seems to need empty line to catch first string
 
 	addValueToOctaveFile( "filename", logFile.fileName());
-	addValueToOctaveFile( "starttime", date);
+	addValueToOctaveFile( "recTime", date);
 	addValueToOctaveFile( "username", system);
+	addValueToOctaveFile( "jointId", "N/A");
+	addValueToOctaveFile( "filterId", "N/A");
 
 	// begin Matrix of log-data:
 	// TODO: emulate union to include names of logValues
-	logStream << "#  name: logdata" << endl;
+	logStream << "#  name: sequenceData" << endl;
 	logStream << "#  type: matrix" << endl;
 	// todo: ordentlichen marker, der von der breite von integer dynamisch erstellt wird
 	logStream << "#  rows: ";logStream.flush();m_replaceRowNrPosition = logStream.pos();logStream << "----------" << endl;

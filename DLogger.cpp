@@ -40,9 +40,6 @@ DLogger::DLogger(QGroupBox *parent, QString basename) : QGroupBox(parent){
 	// TODO: this would be fancy... but needs qt4.7!!!
 	/*lineEdit_fileName->setPlaceholderText(m_baseName + "_" + "yyyy-MM-dd_hh-mm-ss");*/
 
-	// add our own, encapsulated payload
-	m_logNames.append("logTime");
-	m_logNames.append("marker");
 }
 
 DLogger::~DLogger(){
@@ -76,15 +73,15 @@ void DLogger::addLogValues(const QList<double> *dataList){
 
 		QList<double> dataAll;
 		dataAll.append(m_sampleTime.elapsed());
-		dataAll.append(m_marker);
 		dataAll += *dataList;
+		dataAll.append(m_marker);
 
 		if (csvVault)
 			*csvVault << dataAll;
 		if (octaveVault)
 			*octaveVault << dataAll;
 		if (wavVault)
-			*wavVault << dataList->first();// ATTENTION: only taking first value!!! Single-Channel-Audio and so on
+			*wavVault << dataList->first();// ATTENTION: only taking first column for audio loggin!!! Single-Channel-Audio and so on
 	}
 	m_marker = 0;// if a marker was set, return to zero to allow new setting
 }
@@ -95,12 +92,18 @@ void DLogger::trigger_recording(){
 
 	if (pB_startStop_recording->text() == "start recording") {
 
+		// add our own, encapsulated payload if it's not already contained
+		QList<QString> names = m_logNames;
+		names.prepend("logTime");
+		names.append("marker");
+
+
 		m_sampleTime.restart();
 
 		if (cBx_csvVault->isChecked())
-			csvVault = new DCsvVault(getFileName(), m_logNames);
+			csvVault = new DCsvVault(getFileName(), names);
 		if (cBx_octaveVault->isChecked())
-			octaveVault = new DOctaveVault(getFileName(), m_logNames);
+			octaveVault = new DOctaveVault(getFileName(), names);
 		if (cBx_wavVault->isChecked())
 			wavVault = new DWavVault(getFileName());// ATTENTION: dropping the possivle filenames, just choosing the first col
 
@@ -221,7 +224,7 @@ bool DLogger::stopLogging(){
  */
 QString DLogger::getFileName(){
 	if (checkBox_autochooseFilename->isChecked()){
-		lineEdit_fileName->setText(m_baseName+"_"+QDateTime::currentDateTime().toString("yyyy-MM-dd_hh-mm-ss"));
+		lineEdit_fileName->setText("log_"+QDateTime::currentDateTime().toString("yyyy-MM-dd_hh-mm-ss")+"_"+m_baseName);
 	}
 	return lineEdit_fileName->text();
 }

@@ -2,6 +2,8 @@
 
 #include <QDebug>
 
+#include <sys/stat.h>
+
 DWavVault::DWavVault(QString baseName)
 {
 	struct SF_INFO wav_info;
@@ -10,19 +12,15 @@ DWavVault::DWavVault(QString baseName)
 	wav_info.channels = 1;
 	wav_info.format = (SF_FORMAT_WAV | SF_FORMAT_PCM_16);
 
-	filename = baseName+".wav";
-	logFile = NULL;
-	logFile = sf_open(filename.toAscii().data(), SFM_WRITE, &wav_info );
+	m_filename = baseName+".wav";
+	wav = NULL;
+	wav = sf_open(m_filename.toAscii().data(), SFM_WRITE, &wav_info );
 
-	if (logFile == NULL) {
+	if (wav == NULL) {
 		qFatal("Error opening wavfile\n");
+	} else {
+		qDebug() << "DWavVault: Successfully opened logfile" << m_filename;
 	}
-
-//	if (logFile->isOpen()){
-//		qDebug() << "DWavVault: Successfully opened logFile" << filename;
-//	} else {
-//		qWarning() << "DWavVault: Could'n open logFile";
-//	}
 
 	m_nrOfRows = 0;
 
@@ -30,24 +28,34 @@ DWavVault::DWavVault(QString baseName)
 
 DWavVault::~DWavVault()
 {
-	sf_close(logFile);
+	sf_close(wav);
 
-	qDebug() << "DWavVault: Successfully closed logFile" << filename;
+	qDebug() << "DWavVault: Successfully closed logFile" << m_filename;
 }
 
 void DWavVault::AddLogValue(const double value){
 
 	//wavfile
 	int16_t valueI = (int16_t)value;
-	sf_writef_short( logFile, (const short *)&valueI, 1);
+	sf_writef_short( wav, (const short *)&valueI, 1);
 	
 	m_nrOfRows++;
 }
 
 int DWavVault::size(){
-	sf_write_sync(logFile);
-	qDebug() << "DWavVault: size() not implemented...";
-	return -1;
+	sf_write_sync(wav);
+
+    struct stat results;
+    
+    if (stat(m_filename.toAscii().data(), &results) == 0)
+    {
+        return results.st_size;
+    } else
+    {
+    	qFatal("DWavVault: an error occured");
+    	return -1;
+    }
+
 }
 
 int DWavVault::rows(){
@@ -59,7 +67,9 @@ int DWavVault::cols(){
 }
 
 int DWavVault::isOpen(){
-	qDebug() << "DWavVault: isOpen() not implemented...";
-	return true;
+	if (wav == NULL)
+		return true;
+	else
+		return false;
 }
 
